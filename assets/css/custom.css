@@ -36,8 +36,6 @@
   .topbar {
     width: 100%;
   }
-
-
 }
 
 #sidebar-nav-ul .sidebar-item .sidebar-link:hover{
@@ -48,9 +46,9 @@
   background-color: #0d4697;
 }
 
-.body-wrapper {
+/* .body-wrapper {
   padding-top: calc(30px + 132px);
-}
+} */
 
 .text-underline-hover:hover {
   text-decoration: underline;
