@@ -1,0 +1,65 @@
+{% load static %}
+{% load i18n %}
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-bs-theme="light" data-color-theme="Blue_Theme" data-layout="vertical">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Favicon icon-->
+  <link rel="shortcut icon" type="image/png" href="{% static 'images/logos/favicon.png' %}">
+
+  <!-- Core Css -->
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+  <title>Modernize Bootstrap Admin</title>
+  <link rel="stylesheet" href="{% static 'libs/prismjs/themes/prism-okaidia.min.css' %}">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{% static 'css/aside.css' %}">
+  <link rel="stylesheet" href="{% static 'css/tabler-icons.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+  <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+</head>
+<body class="link-sidebar">
+  
+  {% block layout %}
+  {% endblock layout %}
+  
+  <div class="dark-transparent sidebartoggler"></div>
+  <script src="{% static 'js/vendor.min.js' %}"></script>
+  <!-- Import Js Files -->
+  <script src="{% static 'libs/bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'libs/simplebar/dist/simplebar.min.js' %}"></script>
+  <!-- <script src="../assets/js/theme/app.init.js"></script> -->
+  <script>
+    var userSettings = {
+      Layout: "vertical", // vertical | horizontal
+      SidebarType: "full", // full | mini-sidebar
+      BoxedLayout: false, // true | false
+      Direction: "ltr", // ltr | rtl
+      Theme: "light", // light | dark
+      ColorTheme: "Madaniyat_Theme", // Blue_Theme | Aqua_Theme | Purple_Theme | Green_Theme | Cyan_Theme | Orange_Theme
+      cardBorder: false, // true | false
+    };
+  </script>
+
+  <script src="{% static 'js/theme/theme.js' %}"></script>
+  <script src="{% static 'js/theme/app.min.js' %}"></script>
+  <script src="{% static 'js/theme/sidebarmenu.js' %}"></script>
+
+  <!-- solar icons -->
+  <script src="{% static 'npm/iconify-icon%401.0.8/dist/iconify-icon.min.js' %}"></script>
+  <script src="{% static 'libs/prismjs/prism.js' %}"></script>
+  <script src="{% static 'js/widget/ui-card-init.js' %}"></script>
+
+  <!-- Custom JS -->
+  <script src="{% static 'js/custom.js' %}"></script>
+  <script src="{% static 'js/twiker-bs-popover.js' %}"></script>    
+</body>
+
+</html>

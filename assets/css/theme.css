@@ -1,0 +1,32 @@
+[data-bs-theme="dark"][data-color-theme="Madaniyat_Theme"]:root,
+[data-bs-theme="light"][data-color-theme="Madaniyat_Theme"]:root {
+  /* Primary color: #043B87 (rgb(4, 59, 135) ) */
+  --bs-primary: #043B87;
+  --bs-primary-rgb: 4, 59, 135;
+  --bs-light-primary: rgba(4, 59, 135, 0.1);
+  --bs-primary-bg-subtle: rgba(4, 59, 135, 0.1);
+
+  /* Secondary color: #f28c00 (rgb(242, 140, 0) ) */
+  --bs-secondary: #f28c00;
+  --bs-secondary-rgb: 242, 140, 0;
+  --bs-light-secondary: rgba(242, 140, 0, 0.1);
+  --bs-secondary-bg-subtle: rgba(242, 140, 0, 0.1);
+}
+
+[data-bs-theme="dark"][data-color-theme="Madaniyat_Theme"]:root .btn-primary,
+[data-bs-theme="light"][data-color-theme="Madaniyat_Theme"]:root .btn-primary {
+  --bs-btn-bg: #043B87;
+  --bs-btn-border-color: #043B87;
+  /* Hover state: slightly darker */
+  --bs-btn-hover-bg: #022a5f;
+  --bs-btn-hover-border-color: #022a5f;
+}
+
+[data-bs-theme="dark"][data-color-theme="Madaniyat_Theme"]:root .btn-secondary,
+[data-bs-theme="light"][data-color-theme="Madaniyat_Theme"]:root .btn-secondary {
+  --bs-btn-bg: #f28c00;
+  --bs-btn-border-color: #f28c00;
+  /* Hover state: darker orange */
+  --bs-btn-hover-bg: #c66e00;
+  --bs-btn-hover-border-color: #c66e00;
+}

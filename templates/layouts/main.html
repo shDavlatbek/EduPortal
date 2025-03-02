@@ -1,0 +1,354 @@
+{% extends "base.html" %} {% load static %} {% load i18n %} {% get_current_language as LANGUAGE_CODE %} {% block layout %}
+<a href="" class="d-none" id="get-url"></a>
+
+<!-- Preloader -->
+<div class="preloader">
+  <img src="{% static 'images/logos/favicon.png' %}" alt="loader" class="lds-ripple img-fluid" />
+</div>
+<div id="main-wrapper">
+  <!-- Sidebar Start -->
+  <aside class="left-sidebar with-vertical bg-primary">
+    <div>
+      <div class="sidebar-nav scroll-sidebar d-flex flex-column justify-content-center" style="height: 100%">
+        <ul id="sidebar-nav-ul">
+          <li
+            class="sidebar-item mt-3"
+            data-bs-toggle="popover"
+            data-bs-trigger="hover"
+            data-bs-content="{% translate 'brand_name' %}"
+            data-bs-placement="right"
+            data-bs-delay="0"
+            data-bs-responsive="(>sm<xl)"
+          >
+            <a class="sidebar-link text-white" href="javascript:void(0)" aria-expanded="false">
+              <span class="d-flex">
+                <i class="ti ti-books fs-10"></i>
+              </span>
+              <span class="d-block d-sm-none d-xl-block w-100 fs-7 text-center">{% translate 'brand_name' %}</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+      <nav class="sidebar-nav scroll-sidebar d-flex flex-column justify-content-center">
+        <ul id="sidebar-nav-ul">
+          <li
+            class="sidebar-item mb-3"
+            data-bs-toggle="popover"
+            data-bs-trigger="hover"
+            data-bs-content="{% translate 'profile' %}"
+            data-bs-placement="right"
+            data-bs-delay="0"
+            data-bs-responsive="(>sm<xl)"
+          >
+            <a class="sidebar-link text-white" href="javascript:void(0)" aria-expanded="false">
+              <span>
+                <i class="ti ti-user-circle fs-10"></i>
+              </span>
+              <span class="d-block d-sm-none d-xl-block fs-5 w-100 text-center">{% translate "profile" %}</span>
+            </a>
+          </li>
+
+          <li
+            class="sidebar-item mb-3"
+            data-bs-toggle="popover"
+            data-bs-trigger="hover"
+            data-bs-content="{% translate 'reports' %}"
+            data-bs-placement="right"
+            data-bs-delay="0"
+            data-bs-responsive="(>sm<xl)"
+          >
+            <a class="sidebar-link text-white" href="javascript:void(0)" aria-expanded="false">
+              <span>
+                <i class="ti ti-report fs-10"></i>
+              </span>
+              <span class="d-block d-sm-none d-xl-block fs-5 w-100 text-center">{% translate "reports" %}</span>
+            </a>
+          </li>
+
+          <li class="sidebar-item mb-3" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="{% translate 'help' %}" data-bs-placement="right" data-bs-delay="0" data-bs-responsive="(>sm<xl)">
+            <a class="sidebar-link text-white" href="javascript:void(0)" aria-expanded="false">
+              <span>
+                <i class="ti ti-help fs-10"></i>
+              </span>
+              <span class="d-block d-sm-none d-xl-block fs-5 w-100 text-center">{% translate "help" %}</span>
+            </a>
+          </li>
+
+          <li class="sidebar-item mb-3 dropend">
+            <a class="sidebar-link text-white fs-10" href="javascript:void(0)" data-bs-toggle="dropdown" id="drop2" aria-expanded="false" data-bs-offset="-30,10">
+              {% get_current_language as CURRENT_LANGUAGE_CODE %} {% get_language_info for CURRENT_LANGUAGE_CODE as current_language %}
+              <img
+                data-bs-toggle="popover"
+                data-bs-trigger="hover"
+                data-bs-responsive="(>sm<xl)"
+                data-bs-content="{% translate 'select_language' %}"
+                src="{% static 'images/svgs/icon-flag-'|add:CURRENT_LANGUAGE_CODE|add:'.svg' %}"
+                alt="{{ current_language.name }}"
+                width="40px"
+                height="40px"
+                class="rounded-2 object-fit-cover"
+              />
+              <span class="d-block d-sm-none d-xl-block fs-5 w-100 text-center">{% translate "select_language" %}</span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-start dropdown-menu-animate-up" aria-labelledby="drop2">
+              <div class="message-body">
+                {% get_available_languages as LANGUAGES %} {% for lang_code, lang_name in LANGUAGES %} {% get_language_info for lang_code as lang %}
+                <a href="javascript:void(0)" class="d-flex align-items-center gap-2 py-3 px-4 dropdown-item lang-select" data-lang-code="{{ lang_code }}">
+                  <div class="position-relative">
+                    <img src="{% static 'images/svgs/icon-flag-'|add:lang_code|add:'.svg' %}" alt="{{ lang.name }}" width="20px" height="20px" class="rounded-circle object-fit-cover round-20" />
+                  </div>
+                  <p class="mb-0 fs-3">{% translate lang.name_local %}</p>
+                </a>
+                {% endfor %}
+              </div>
+            </div>
+          </li>
+        </ul>
+      </nav>
+      <div class="sidebar-nav scroll-sidebar d-flex flex-column justify-content-center" style="height: 100%">
+        <ul id="sidebar-nav-ul">
+          <li
+            class="sidebar-item mb-3"
+            data-bs-toggle="popover"
+            data-bs-trigger="hover"
+            data-bs-content="{% translate 'logout' %}"
+            data-bs-placement="right"
+            data-bs-delay="0"
+            data-bs-responsive="(>sm<xl)"
+          >
+            <a class="sidebar-link text-white" href="javascript:void(0)" aria-expanded="false">
+              <span class="d-block d-sm-none d-xl-block w-100 fs-7 text-center">{% translate 'logout' %}</span>
+              <span class="d-flex">
+                <i class="ti ti-logout fs-10"></i>
+              </span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+  <!--  Sidebar End -->
+
+  <div class="page-wrapper">
+    <!--  Header Start -->
+    <header class="topbar border border-2 border-start-0 border-end-0 border-top-0">
+      <div class="with-vertical">
+        <nav class="navbar navbar-expand-lg p-0">
+          <ul class="navbar-nav">
+            <li class="nav-item nav-icon-hover-bg rounded-circle ms-n2 d-flex d-sm-none">
+              <a class="nav-link sidebartoggler" id="headerCollapse" href="javascript:void(0)">
+                <i class="ti ti-menu-deep" style="transform: rotateY(180deg);"></i>
+              </a>
+            </li>
+          </ul>
+
+          <!-- Logo in large screen, left side -->
+          <ul class="navbar-nav quick-links d-none d-lg-flex align-items-center">
+            <li class="nav-item rounded w-auto d-none d-lg-block mx-0">
+              <div class="row">
+                <div class="col-auto">
+                  <a href="index.html" class="text-decoration-none d-flex align-items-center p-3">
+                    <img src="{% static 'images/logos/logo.png' %}" alt="Sirdaryo Madaniyat Boshqarmasi" width="100px" height="100px" />
+                    <span class="fs-7 ms-4 fw-semibold text-dark text-uppercase">Sirdaryo Madaniyat<br />Boshqarmasi</span>
+                  </a>
+                </div>
+              </div>
+            </li>
+          </ul>
+
+          <!-- Logo in small screen, middle -->
+          <div class="d-block d-lg-none py-4">
+            <a href="index.html" class="text-nowrap logo-img">
+              <div class="row">
+                <div class="col-3">
+                  <img src="{% static 'images/logos/logo.png' %}" class="dark-logo" width="50px" alt="Logo-Dark" />
+                </div>
+                <div class="col-6">
+                  <span class="fs-4 fw-semibold text-dark text-uppercase">Sirdaryo Madaniyat<br />Boshqarmasi</span>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <div class="navbar-collapse justify-content-end" id="navbarNav">
+            <div class="d-flex align-items-center justify-content-between w-100">
+              <ul class="navbar-nav flex-row align-items-center justify-content-center w-100 p-1">
+                <!-- Search Icon -->
+                <li class="nav-item nav-icon-hover-bg rounded-circle d-flex d-lg-none me-3">
+                  <a class="nav-link" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    <i class="ti ti-search fs-7"></i>
+                  </a>
+                </li>
+                <li class="nav-item me-3 d-flex d-lg-none">
+                  <i class="ti ti-phone fs-8"></i>
+                </li>
+                <li class="nav-item me-3 d-flex d-lg-none">
+                  <a href="tel:+998555023375" class="text-decoration-none fw-semibold me-1 fs-7">+99855 502-33-75;</a>
+                </li>
+                <li class="nav-item line-top-bottom me-3 ms-auto d-none d-lg-flex">
+                  <i class="ti ti-phone fs-8"></i>
+                </li>
+                <li class="nav-item flex-column fs-5 d-none d-lg-flex">
+                  <span class="fw-bold text-uppercase mb-0 fs-4 text-uppercase">Ishonch telefoni</span>
+                  <a href="tel:+998555023375" class="text-decoration-none fw-semibold me-1 fs-7">+99855 502-33-75;</a>
+                  <a href="#" class="fs-4 text-uppercase text-underline-hover">BARCHA RAQAMLAR</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+        <!-- ---------------------------------- -->
+        <!-- End Vertical Layout Header -->
+        <!-- ---------------------------------- -->
+      </div>
+    </header>
+
+    <div class="body-wrapper">
+      <div class="container-fluid">{% block content %} {% endblock content %}</div>
+    </div>
+    <script>
+      function handleColorTheme(e) {
+        document.documentElement.setAttribute("data-color-theme", e);
+      }
+    </script>
+    <button id="back-to-top" class="btn btn-primary p-3 rounded-circle align-items-center justify-content-center back-to-top" type="button">
+      <i class="icon ti ti-arrow-up fs-7"></i>
+    </button>
+  </div>
+
+  <!--  Search Bar -->
+  <div class="modal fade" id="exampleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+      <div class="modal-content rounded-1">
+        <div class="modal-header border-bottom">
+          <input type="search" class="form-control fs-3" placeholder="Search here" id="search" />
+          <a href="javascript:void(0)" data-bs-dismiss="modal" class="lh-1">
+            <i class="ti ti-x fs-5 ms-3"></i>
+          </a>
+        </div>
+        <div class="modal-body message-body" data-simplebar="">
+          <h5 class="mb-0 fs-5 p-1">Quick Page Links</h5>
+          <ul class="list mb-0 py-2">
+            <li class="p-1 mb-1 bg-hover-light-black">
+              <a href="javascript:void(0)">
+                <span class="d-block">Modern</span>
+                <span class="text-muted d-block">/dashboards/dashboard1</span>
+              </a>
+            </li>
+            <li class="p-1 mb-1 bg-hover-light-black">
+              <a href="javascript:void(0)">
+                <span class="d-block">Dashboard</span>
+                <span class="text-muted d-block">/dashboards/dashboard2</span>
+              </a>
+            </li>
+            <li class="p-1 mb-1 bg-hover-light-black">
+              <a href="javascript:void(0)">
+                <span class="d-block">Contacts</span>
+                <span class="text-muted d-block">/apps/contacts</span>
+              </a>
+            </li>
+            <li class="p-1 mb-1 bg-hover-light-black">
+              <a href="javascript:void(0)">
+                <span class="d-block">Posts</span>
+                <span class="text-muted d-block">/apps/blog/posts</span>
+              </a>
+            </li>
+            <li class="p-1 mb-1 bg-hover-light-black">
+              <a href="javascript:void(0)">
+                <span class="d-block">Detail</span>
+                <span class="text-muted d-block">/apps/blog/detail/streaming-video-way-before-it-was-cool-go-dark-tomorrow</span>
+              </a>
+            </li>
+            <li class="p-1 mb-1 bg-hover-light-black">
+              <a href="javascript:void(0)">
+                <span class="d-block">Shop</span>
+                <span class="text-muted d-block">/apps/ecommerce/shop</span>
+              </a>
+            </li>
+            <li class="p-1 mb-1 bg-hover-light-black">
+              <a href="javascript:void(0)">
+                <span class="d-block">Modern</span>
+                <span class="text-muted d-block">/dashboards/dashboard1</span>
+              </a>
+            </li>
+            <li class="p-1 mb-1 bg-hover-light-black">
+              <a href="javascript:void(0)">
+                <span class="d-block">Dashboard</span>
+                <span class="text-muted d-block">/dashboards/dashboard2</span>
+              </a>
+            </li>
+            <li class="p-1 mb-1 bg-hover-light-black">
+              <a href="javascript:void(0)">
+                <span class="d-block">Contacts</span>
+                <span class="text-muted d-block">/apps/contacts</span>
+              </a>
+            </li>
+            <li class="p-1 mb-1 bg-hover-light-black">
+              <a href="javascript:void(0)">
+                <span class="d-block">Posts</span>
+                <span class="text-muted d-block">/apps/blog/posts</span>
+              </a>
+            </li>
+            <li class="p-1 mb-1 bg-hover-light-black">
+              <a href="javascript:void(0)">
+                <span class="d-block">Detail</span>
+                <span class="text-muted d-block">/apps/blog/detail/streaming-video-way-before-it-was-cool-go-dark-tomorrow</span>
+              </a>
+            </li>
+            <li class="p-1 mb-1 bg-hover-light-black">
+              <a href="javascript:void(0)">
+                <span class="d-block">Shop</span>
+                <span class="text-muted d-block">/apps/ecommerce/shop</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="dark-transparent sidebartoggler"></div>
+
+{% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Add language selection functionality
+    document.querySelectorAll(".lang-select").forEach(function (link) {
+      link.addEventListener("click", function (e) {
+        e.preventDefault();
+
+        // Create a form to submit language change
+        var form = document.createElement("form");
+        form.action = "/i18n/setlang/";
+        form.method = "post";
+        form.style.display = "none";
+
+        // Add CSRF token
+        var csrfToken = document.createElement("input");
+        csrfToken.type = "hidden";
+        csrfToken.name = "csrfmiddlewaretoken";
+        csrfToken.value = "{{ csrf_token }}";
+        form.appendChild(csrfToken);
+
+        // Add language code
+        var langInput = document.createElement("input");
+        langInput.type = "hidden";
+        langInput.name = "language";
+        langInput.value = this.dataset.langCode;
+        form.appendChild(langInput);
+
+        // Add next parameter to return to the same page
+        var nextInput = document.createElement("input");
+        nextInput.type = "hidden";
+        nextInput.name = "next";
+        nextInput.value = window.location.pathname;
+        form.appendChild(nextInput);
+
+        document.body.appendChild(form);
+        form.submit();
+      });
+    });
+  });
+</script>
+{% endblock %} {% endblock layout %}

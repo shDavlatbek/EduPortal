@@ -1,0 +1,85 @@
+/* Width of the scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track (background) */
+::-webkit-scrollbar-track {
+  background: #f0f0f0;
+}
+
+/* Handle (the draggable part) */
+::-webkit-scrollbar-thumb {
+  background: var(--bs-primary);
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--bs-primary);
+}
+
+
+.back-to-top {
+  position: fixed;
+  bottom: -200px;
+  right: 20px;
+  display: none; /* Hidden by default */
+  z-index: 99;
+  transition: bottom 0.3s ease-in-out;
+}
+
+.topbar {
+  width: calc(100% - 87px);
+}
+
+@media (max-width: 575.98px) {
+  .topbar {
+    width: 100%;
+  }
+
+
+}
+
+#sidebar-nav-ul .sidebar-item .sidebar-link:hover{
+  background-color: #284b93;
+}
+
+#sidebar-nav-ul .sidebar-item .sidebar-link{
+  background-color: #0d4697;
+}
+
+.body-wrapper {
+  padding-top: calc(30px + 132px);
+}
+
+.text-underline-hover:hover {
+  text-decoration: underline;
+}
+
+.line-top-bottom{
+  position: relative;
+}
+
+.line-top-bottom::before{
+  position: absolute;
+    content: "";
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 100%;
+    background-color: var(--bs-primary);
+    opacity: .5;
+    bottom: calc(100% + 5px);
+
+}
+.line-top-bottom::after{
+  position: absolute;
+    content: "";
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 100%;
+    background-color: var(--bs-primary);
+    opacity: .5;
+    top: calc(100% + 5px);
+}
