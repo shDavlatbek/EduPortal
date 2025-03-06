@@ -20,7 +20,7 @@
             data-bs-delay="0"
             data-bs-responsive="(>sm<xl)"
           >
-            <a class="sidebar-link text-white" href="javascript:void(0)" aria-expanded="false">
+              <a class="sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}bg-white text-dark{% else %}text-white{% endif %}" href="{% url 'dashboard' %}" aria-expanded="false">
               <span class="d-flex">
                 <i class="ti ti-books fs-10"></i>
               </span>
@@ -40,7 +40,7 @@
             data-bs-delay="0"
             data-bs-responsive="(>sm<xl)"
           >
-            <a class="sidebar-link text-white" href="javascript:void(0)" aria-expanded="false">
+            <a class="sidebar-link {% if request.resolver_match.url_name == 'profile' %}bg-white text-dark{% else %}text-white{% endif %}" href="{% url 'profile' %}" aria-expanded="false">
               <span>
                 <i class="ti ti-user-circle fs-10"></i>
               </span>
@@ -57,7 +57,7 @@
             data-bs-delay="0"
             data-bs-responsive="(>sm<xl)"
           >
-            <a class="sidebar-link text-white" href="javascript:void(0)" aria-expanded="false">
+            <a class="sidebar-link {% if request.resolver_match.url_name == 'report' %}bg-white text-dark{% else %}text-white{% endif %}" href="{% url 'report' %}" aria-expanded="false">
               <span>
                 <i class="ti ti-report fs-10"></i>
               </span>
@@ -65,18 +65,26 @@
             </a>
           </li>
 
-          <li class="sidebar-item mb-3" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="{% translate 'help' %}" data-bs-placement="right" data-bs-delay="0" data-bs-responsive="(>sm<xl)">
-            <a class="sidebar-link text-white" href="javascript:void(0)" aria-expanded="false">
+          <li
+            class="sidebar-item mb-3"
+            data-bs-toggle="popover"
+            data-bs-trigger="hover"
+            data-bs-content="{% translate 'help' %}"
+            data-bs-placement="right"
+            data-bs-delay="0"
+            data-bs-responsive="(>sm<xl)"
+          >
+            <a class="sidebar-link {% if request.resolver_match.url_name == 'help' %}bg-white text-dark{% else %}text-white{% endif %}" href="{% url 'help' %}" aria-expanded="false">
               <span>
                 <i class="ti ti-help fs-10"></i>
               </span>
               <span class="d-block d-sm-none d-xl-block fs-5 w-100 text-center">{% translate "help" %}</span>
             </a>
           </li>
-          
         </ul>
       </nav>
-      <div class="sidebar-nav scroll-sidebar d-flex flex-column justify-content-center" style="height: 100%">
+      <form action="{% url 'logout' %}" method="post" class="d-none sidebar-nav scroll-sidebar d-flex flex-column justify-content-center" style="height: 100%">
+        {% csrf_token %}
         <ul id="sidebar-nav-ul">
           <li
             class="sidebar-item mb-3"
@@ -87,15 +95,15 @@
             data-bs-delay="0"
             data-bs-responsive="(>sm<xl)"
           >
-            <a class="sidebar-link text-white" href="javascript:void(0)" aria-expanded="false">
+            <button type="submit" class="btn btn-link w-100 sidebar-link text-white" aria-expanded="false">
               <span class="d-block d-sm-none d-xl-block w-100 fs-7 text-center">{% translate 'logout' %}</span>
               <span class="d-flex">
                 <i class="ti ti-logout fs-10"></i>
               </span>
-            </a>
+            </button>
           </li>
         </ul>
-      </div>
+      </form>
     </div>
   </aside>
   <!--  Sidebar End -->
@@ -105,20 +113,18 @@
     <header class="topbar border border-2 border-start-0 border-end-0 border-top-0">
       <div class="with-vertical">
         <nav class="navbar navbar-expand-lg p-0">
-
           <div class="navbar-collapse justify-content-end collapse show" id="navbarNav" style="">
             <div class="d-flex align-items-center justify-content-between">
               <a href="javascript:void(0)" class="nav-link nav-icon-hover-bg sidebartoggler rounded-circle mx-0 ms-n1 d-flex d-sm-none align-items-center justify-content-center" type="button">
                 <i class="ti ti-align-justified fs-7"></i>
               </a>
               <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-center">
-                
-                <li class="nav-item nav-icon-hover-bg rounded-circle">
-                  <a class="nav-link moon dark-layout" href="javascript:void(0)" style="display: flex;">
-                    <i class="ti ti-moon moon" style="display: flex;"></i>
+                <li class="nav-item nav-icon-hover-bg rounded-circle theme-toggle">
+                  <a class="nav-link moon dark-layout" href="javascript:void(0)">
+                    <i class="ti ti-moon moon"></i>
                   </a>
-                  <a class="nav-link sun light-layout" href="javascript:void(0)" style="display: none;">
-                    <i class="ti ti-sun sun" style="display: none;"></i>
+                  <a class="nav-link sun light-layout" href="javascript:void(0)">
+                    <i class="ti ti-sun sun"></i>
                   </a>
                 </li>
 
@@ -128,22 +134,34 @@
                 <li class="nav-item nav-icon-hover-bg rounded-circle dropdown">
                   <a class="nav-link" href="javascript:void(0)" id="drop2" aria-expanded="false">
                     {% get_current_language as CURRENT_LANGUAGE_CODE %} {% get_language_info for CURRENT_LANGUAGE_CODE as current_language %}
-                    <img 
-                      src="{% static 'images/svgs/icon-flag-'|add:CURRENT_LANGUAGE_CODE|add:'.svg' %}" 
-                      alt="{{ current_language.name }}" 
-                      width="20px" 
-                      height="20px" 
-                      class="rounded-circle object-fit-cover round-20">
+                    <img
+                      src="{% static 'images/svgs/icon-flag-'|add:CURRENT_LANGUAGE_CODE|add:'.svg' %}"
+                      alt="{{ current_language.name }}"
+                      width="20px"
+                      height="20px"
+                      class="rounded-circle object-fit-cover round-20"
+                    />
                   </a>
                   <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
                     <div class="message-body">
                       {% get_available_languages as LANGUAGES %} {% for lang_code, lang_name in LANGUAGES %} {% get_language_info for lang_code as lang %}
-                      <a href="javascript:void(0)" class="d-flex align-items-center gap-2 py-3 px-4 dropdown-item lang-select" data-lang-code="{{ lang_code }}">
-                        <div class="position-relative">
-                          <img src="{% static 'images/svgs/icon-flag-'|add:lang_code|add:'.svg' %}" alt="{{ lang.name }}" width="20px" height="20px" class="rounded-circle object-fit-cover round-20">
-                        </div>
-                        <p class="mb-0 fs-3">{% translate lang.name_local %}</p>
-                      </a>
+                      <form action="{% url 'set_language' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="language" value="{{ lang_code }}" />
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+                        <button type="submit" class="d-flex align-items-center gap-2 py-3 px-4 dropdown-item lang-select">
+                          <div class="position-relative">
+                            <img
+                              src="{% static 'images/svgs/icon-flag-'|add:lang_code|add:'.svg' %}"
+                              alt="{{ lang.name }}"
+                              width="20px"
+                              height="20px"
+                              class="rounded-circle object-fit-cover round-20"
+                            />
+                          </div>
+                          <p class="mb-0 fs-3 text-capitalize">{% translate lang.name_local %}</p>
+                        </button>
+                      </form>
                       {% endfor %}
                     </div>
                   </div>
@@ -152,37 +170,36 @@
                 <!-- end language Dropdown -->
                 <!-- ------------------------------- -->
 
-
                 <!-- ------------------------------- -->
                 <!-- start notification Dropdown -->
                 <!-- ------------------------------- -->
-                {% comment %} 
-                 <li class="nav-item nav-icon-hover-bg rounded-circle dropdown">
-                    <a class="nav-link position-relative" href="javascript:void(0)" id="drop2" aria-expanded="false">
-                      <i class="ti ti-bell-ringing"></i>
-                      <div class="notification bg-primary rounded-circle"></div>
-                    </a>
-                    <div class="dropdown-menu content-dd dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
-                      <div class="d-flex align-items-center justify-content-between py-3 px-7">
-                        <h5 class="mb-0 fs-5 fw-semibold">Notifications</h5>
-                        <span class="badge text-bg-primary rounded-4 px-3 py-1 lh-sm">5 new</span>
-                      </div>
-                      <div class="message-body" data-simplebar="">
-                        <a href="javascript:void(0)" class="py-6 px-7 d-flex align-items-center dropdown-item">
-                          <span class="me-3">
-                            <img src="../assets/images/profile/user-2.jpg" alt="user" class="rounded-circle" width="48" height="48">
-                          </span>
-                          <div class="w-100">
-                            <h6 class="mb-1 fw-semibold lh-base">Roman Joined the Team!</h6>
-                            <span class="fs-2 d-block text-body-secondary">Congratulate him</span>
-                          </div>
-                        </a>
-                      </div>
-                      <div class="py-6 px-7 mb-1">
-                        <button class="btn btn-outline-primary w-100">See All Notifications</button>
-                      </div>
+                {% comment %}
+                <li class="nav-item nav-icon-hover-bg rounded-circle dropdown">
+                  <a class="nav-link position-relative" href="javascript:void(0)" id="drop2" aria-expanded="false">
+                    <i class="ti ti-bell-ringing"></i>
+                    <div class="notification bg-primary rounded-circle"></div>
+                  </a>
+                  <div class="dropdown-menu content-dd dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
+                    <div class="d-flex align-items-center justify-content-between py-3 px-7">
+                      <h5 class="mb-0 fs-5 fw-semibold">Notifications</h5>
+                      <span class="badge text-bg-primary rounded-4 px-3 py-1 lh-sm">5 new</span>
                     </div>
-                  </li> 
+                    <div class="message-body" data-simplebar="">
+                      <a href="javascript:void(0)" class="py-6 px-7 d-flex align-items-center dropdown-item">
+                        <span class="me-3">
+                          <img src="{% static 'images/profile/user-2.jpg' %}" alt="user" class="rounded-circle" width="48" height="48" />
+                        </span>
+                        <div class="w-100">
+                          <h6 class="mb-1 fw-semibold lh-base">Roman Joined the Team!</h6>
+                          <span class="fs-2 d-block text-body-secondary">Congratulate him</span>
+                        </div>
+                      </a>
+                    </div>
+                    <div class="py-6 px-7 mb-1">
+                      <button class="btn btn-outline-primary w-100">See All Notifications</button>
+                    </div>
+                  </div>
+                </li>
                 {% endcomment %}
                 <!-- ------------------------------- -->
                 <!-- end notification Dropdown -->
@@ -192,34 +209,43 @@
                 <!-- start profile Dropdown -->
                 <!-- ------------------------------- -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link pe-0" href="javascript:void(0)" id="drop1" aria-expanded="false">
-                      <div class="d-flex align-items-center">
-                        <div class="user-profile-img">
-                          <img src="../assets/images/profile/user-1.jpg" class="rounded-circle" width="35" height="35" alt="modernize-img">
-                        </div>
-                      </div>
-                    </a>
-                    <div class="dropdown-menu content-dd dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop1">
-                      <div class="profile-dropdown position-relative" data-simplebar="">
-                        <div class="py-3 px-7 pb-0">
-                          <h5 class="mb-0 fs-5 fw-semibold">User Profile</h5>
-                        </div>
-                        <div class="d-flex align-items-center py-9 mx-7 border-bottom">
-                          <img src="../assets/images/profile/user-1.jpg" class="rounded-circle" width="80" height="80" alt="modernize-img">
-                          <div class="ms-3">
-                            <h5 class="mb-1 fs-3">Mathew Anderson</h5>
-                            <span class="mb-1 d-block">Designer</span>
-                            <p class="mb-0 d-flex align-items-center gap-2">
-                              <i class="ti ti-mail fs-4"></i> info@modernize.com
-                            </p>
-                          </div>
-                        </div>
-                        <div class="d-grid py-4 px-7 pt-8">
-                          <a href="authentication-login.html" class="btn btn-outline-primary">Log Out</a>
-                        </div>
+                  <a class="nav-link pe-0" href="javascript:void(0)" id="drop1" aria-expanded="false">
+                    <div class="d-flex align-items-center">
+                      <div class="user-profile-img">
+                        {% if request.user.profile_picture %}
+                        <img src="{{ request.user.profile_picture.url }}" class="rounded-circle" width="35" height="35" alt="Profile Picture" />
+                        {% else %}
+                        <img src="{% static 'images/profile/placeholder.jpg' %}" class="rounded-circle" width="35" height="35" alt="Profile Picture" />
+                        {% endif %}
                       </div>
                     </div>
-                  </li>
+                  </a>
+                  <div class="dropdown-menu content-dd dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop1">
+                    <div class="profile-dropdown position-relative">
+                      <div class="py-3 px-7 pb-0">
+                        <h5 class="mb-0 fs-5 fw-semibold">{% translate 'profile' %}</h5>
+                      </div>
+                      <div class="d-flex align-items-center py-9 mx-7 border-bottom">
+                        {% if request.user.profile_picture %}
+                        <img src="{{ request.user.profile_picture.url }}" class="rounded-circle" width="80" height="80" alt="Profile Picture" />
+                        {% else %}
+                        <img src="{% static 'images/profile/placeholder.jpg' %}" class="rounded-circle" width="80" height="80" alt="Profile Picture" />
+                        {% endif %}
+                        <div class="ms-3">
+                          <h5 class="mb-1 fs-3">{{ request.user.first_name }} {{ request.user.last_name }}</h5>
+                          <span class="mb-1 d-block">{% translate request.user.groups.first.name %}</span>
+                          {% if request.user.email %}
+                          <p class="mb-0 d-flex align-items-center gap-2"><i class="ti ti-mail fs-4"></i> {{ request.user.email }}</p>
+                          {% endif %}
+                        </div>
+                      </div>
+                      <form action="{% url 'logout' %}" method="post" class="d-grid py-4 px-7 pt-8">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-primary">{% translate 'logout' %}</button>
+                      </form>
+                    </div>
+                  </div>
+                </li>
                 <!-- ------------------------------- -->
                 <!-- end profile Dropdown -->
                 <!-- ------------------------------- -->
@@ -245,140 +271,8 @@
       <i class="icon ti ti-arrow-up fs-7"></i>
     </button>
   </div>
-
-  <!--  Search Bar -->
-  <div class="modal fade" id="exampleModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable modal-lg">
-      <div class="modal-content rounded-1">
-        <div class="modal-header border-bottom">
-          <input type="search" class="form-control fs-3" placeholder="Search here" id="search" />
-          <a href="javascript:void(0)" data-bs-dismiss="modal" class="lh-1">
-            <i class="ti ti-x fs-5 ms-3"></i>
-          </a>
-        </div>
-        <div class="modal-body message-body" data-simplebar="">
-          <h5 class="mb-0 fs-5 p-1">Quick Page Links</h5>
-          <ul class="list mb-0 py-2">
-            <li class="p-1 mb-1 bg-hover-light-black">
-              <a href="javascript:void(0)">
-                <span class="d-block">Modern</span>
-                <span class="text-muted d-block">/dashboards/dashboard1</span>
-              </a>
-            </li>
-            <li class="p-1 mb-1 bg-hover-light-black">
-              <a href="javascript:void(0)">
-                <span class="d-block">Dashboard</span>
-                <span class="text-muted d-block">/dashboards/dashboard2</span>
-              </a>
-            </li>
-            <li class="p-1 mb-1 bg-hover-light-black">
-              <a href="javascript:void(0)">
-                <span class="d-block">Contacts</span>
-                <span class="text-muted d-block">/apps/contacts</span>
-              </a>
-            </li>
-            <li class="p-1 mb-1 bg-hover-light-black">
-              <a href="javascript:void(0)">
-                <span class="d-block">Posts</span>
-                <span class="text-muted d-block">/apps/blog/posts</span>
-              </a>
-            </li>
-            <li class="p-1 mb-1 bg-hover-light-black">
-              <a href="javascript:void(0)">
-                <span class="d-block">Detail</span>
-                <span class="text-muted d-block">/apps/blog/detail/streaming-video-way-before-it-was-cool-go-dark-tomorrow</span>
-              </a>
-            </li>
-            <li class="p-1 mb-1 bg-hover-light-black">
-              <a href="javascript:void(0)">
-                <span class="d-block">Shop</span>
-                <span class="text-muted d-block">/apps/ecommerce/shop</span>
-              </a>
-            </li>
-            <li class="p-1 mb-1 bg-hover-light-black">
-              <a href="javascript:void(0)">
-                <span class="d-block">Modern</span>
-                <span class="text-muted d-block">/dashboards/dashboard1</span>
-              </a>
-            </li>
-            <li class="p-1 mb-1 bg-hover-light-black">
-              <a href="javascript:void(0)">
-                <span class="d-block">Dashboard</span>
-                <span class="text-muted d-block">/dashboards/dashboard2</span>
-              </a>
-            </li>
-            <li class="p-1 mb-1 bg-hover-light-black">
-              <a href="javascript:void(0)">
-                <span class="d-block">Contacts</span>
-                <span class="text-muted d-block">/apps/contacts</span>
-              </a>
-            </li>
-            <li class="p-1 mb-1 bg-hover-light-black">
-              <a href="javascript:void(0)">
-                <span class="d-block">Posts</span>
-                <span class="text-muted d-block">/apps/blog/posts</span>
-              </a>
-            </li>
-            <li class="p-1 mb-1 bg-hover-light-black">
-              <a href="javascript:void(0)">
-                <span class="d-block">Detail</span>
-                <span class="text-muted d-block">/apps/blog/detail/streaming-video-way-before-it-was-cool-go-dark-tomorrow</span>
-              </a>
-            </li>
-            <li class="p-1 mb-1 bg-hover-light-black">
-              <a href="javascript:void(0)">
-                <span class="d-block">Shop</span>
-                <span class="text-muted d-block">/apps/ecommerce/shop</span>
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <div class="dark-transparent sidebartoggler"></div>
 
-{% block extra_js %}
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    // Add language selection functionality
-    document.querySelectorAll(".lang-select").forEach(function (link) {
-      link.addEventListener("click", function (e) {
-        e.preventDefault();
-
-        // Create a form to submit language change
-        var form = document.createElement("form");
-        form.action = "/i18n/setlang/";
-        form.method = "post";
-        form.style.display = "none";
-
-        // Add CSRF token
-        var csrfToken = document.createElement("input");
-        csrfToken.type = "hidden";
-        csrfToken.name = "csrfmiddlewaretoken";
-        csrfToken.value = "{{ csrf_token }}";
-        form.appendChild(csrfToken);
-
-        // Add language code
-        var langInput = document.createElement("input");
-        langInput.type = "hidden";
-        langInput.name = "language";
-        langInput.value = this.dataset.langCode;
-        form.appendChild(langInput);
-
-        // Add next parameter to return to the same page
-        var nextInput = document.createElement("input");
-        nextInput.type = "hidden";
-        nextInput.name = "next";
-        nextInput.value = window.location.pathname;
-        form.appendChild(nextInput);
-
-        document.body.appendChild(form);
-        form.submit();
-      });
-    });
-  });
-</script>
-{% endblock %} {% endblock layout %}
+{% endblock layout %}

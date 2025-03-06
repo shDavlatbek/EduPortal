@@ -1,0 +1,42 @@
+{% extends 'layouts/empty.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="position-relative overflow-hidden radial-gradient min-vh-100 w-100 d-flex align-items-center justify-content-center">
+    <div class="d-flex align-items-center justify-content-center w-100">
+      <div class="row justify-content-center w-100">
+        <div class="col-md-8 col-lg-6 col-xxl-3 auth-card">
+          <div class="card mb-0">
+            <div class="card-body">
+              <h1 class="text-nowrap logo-img text-center d-block mb-5 w-100">
+                {% translate 'brand_name' %}
+              </h1>
+              
+              <form action="{% url 'login' %}" method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                  <label for="username" class="form-label">{% translate 'username' %}</label>
+                  <input type="text" class="form-control" id="username" name="username" required>
+                </div>
+                <div class="mb-4">
+                  <label for="password" class="form-label">{% translate 'password' %}</label>
+                  <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                <div class="mb-4">
+                    {% for message in messages %}
+                        <div class="alert alert-danger">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="btn btn-primary w-100 py-8 rounded-2">{% translate 'login' %}</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+

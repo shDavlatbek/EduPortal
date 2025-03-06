@@ -1,0 +1,17 @@
+{% extends "base.html" %} {% load static %} 
+
+{% block layout %}
+<a href="" class="d-none" id="get-url"></a>
+
+<!-- Preloader -->
+<div class="preloader">
+  <img src="{% static 'images/logos/favicon.png' %}" alt="loader" class="lds-ripple img-fluid" />
+</div>
+<div id="main-wrapper">
+
+    {% block content %}
+    {% endblock %}
+  
+</div>
+
+{% endblock layout %}

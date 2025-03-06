@@ -109,6 +109,10 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+LOGIN_REDIRECT_URL = 'dashboard'
+LOGOUT_REDIRECT_URL = 'login'
+LOGIN_URL = 'login'
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 LANGUAGE_CODE = 'uz'
@@ -118,8 +122,8 @@ LOCALE_PATHS = [
 ]
 
 LANGUAGES = [
-    ('uz', _('Uzbek')),
-    ('ru', _('Rus tili')),
+    ('uz', _('uzbek')),
+    ('ru', _('russian')),
 ]
 
 
@@ -149,44 +153,44 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-JAZZMIN_SETTINGS = {
-     # title of the window (Will default to current_admin_site.site_title if absent or None)
-    "site_title": _("Admin panel"),
+# JAZZMIN_SETTINGS = {
+#      # title of the window (Will default to current_admin_site.site_title if absent or None)
+#     "site_title": _("Admin panel"),
 
-    # Title on the login screen (19 chars max) (defaults to current_admin_site.site_header if absent or None)
-    "site_header": _("Admin panel"),
+#     # Title on the login screen (19 chars max) (defaults to current_admin_site.site_header if absent or None)
+#     "site_header": _("Admin panel"),
 
-    # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
-    "site_brand": _("Admin panel"),
+#     # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
+#     "site_brand": _("Admin panel"),
 
-    # Welcome text on the login screen
-    "welcome_sign": _("Admin panelga xush kelibsiz"),
+#     # Welcome text on the login screen
+#     "welcome_sign": _("Admin panelga xush kelibsiz"),
 
-    # Copyright on the footer
-    "copyright": _("BON-Tech korporatsiyasi"),
+#     # Copyright on the footer
+#     "copyright": _("BON-Tech korporatsiyasi"),
 
 
 
-    # List of apps (and/or models) to base side menu ordering off of (does not need to contain all apps/models)
-    "order_with_respect_to": ["auth", "main", "main.MainSlide", "main.News", "main.Report", "main.Contact", "main.Station", "main.Wind", "main.Social"],
+#     # List of apps (and/or models) to base side menu ordering off of (does not need to contain all apps/models)
+#     "order_with_respect_to": ["auth", "main", "main.MainSlide", "main.News", "main.Report", "main.Contact", "main.Station", "main.Wind", "main.Social"],
 
-    "icons": {
-        "auth": "fas fa-users-cog",
-        "auth.user": "fas fa-user",
-        "auth.Group": "fas fa-users",
-        "main": "fas fa-home",
-        "main.MainSlide": "fas fa-image",
-        "main.News": "fas fa-newspaper",
-        "main.Report": "fas fa-file-alt",
-        "main.Contact": "fas fa-phone",
-        "main.Station": "fas fa-map-marker-alt",
-        "main.Wind": "fas fa-wind",
-    },
-    "default_icon_parents": "fas fa-chevron-circle-right",
-    "default_icon_children": "fas fa-circle",
-    "related_modal_active": True,
-    "changeform_format": "single",
-    "language_chooser": True,
-}
+#     "icons": {
+#         "auth": "fas fa-users-cog",
+#         "auth.user": "fas fa-user",
+#         "auth.Group": "fas fa-users",
+#         "main": "fas fa-home",
+#         "main.MainSlide": "fas fa-image",
+#         "main.News": "fas fa-newspaper",
+#         "main.Report": "fas fa-file-alt",
+#         "main.Contact": "fas fa-phone",
+#         "main.Station": "fas fa-map-marker-alt",
+#         "main.Wind": "fas fa-wind",
+#     },
+#     "default_icon_parents": "fas fa-chevron-circle-right",
+#     "default_icon_children": "fas fa-circle",
+#     "related_modal_active": True,
+#     "changeform_format": "single",
+#     "language_chooser": True,
+# }
 
 AUTH_USER_MODEL = 'web.User'

@@ -81,3 +81,10 @@
     opacity: .5;
     top: calc(100% + 5px);
 }
+
+.sidebar-nav ul .sidebar-item.selected > .sidebar-link,
+.sidebar-nav ul .sidebar-item.selected > .sidebar-link.active,
+.sidebar-nav ul .sidebar-item > .sidebar-link.active {
+  background-color: var(--bs-white);
+  color: var(--bs-dark);
+}

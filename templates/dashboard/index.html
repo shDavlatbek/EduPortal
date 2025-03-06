@@ -1,0 +1,114 @@
+{% extends "layouts/main.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-none">
+            <div class="card-body p-0 m-0">
+                <h3 class="card-title mb-3">{% translate 'dashboard' %}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+
+    {% if perms.web.view_user %}
+    <div class="col-12 col-md-6 col-lg-4 d-flex align-items-stretch">
+        <a href="javascript:void(0)" class="card w-100 card-hover">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <i class="ti ti-school text-primary display-6"></i>
+                    <div class="ms-auto">
+                        <span class="fs-8">{{ students_count }}</span>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <h4 class="card-title mb-1">{% translate 'students' %}</h4>
+                    <p class="card-text fw-normal opacity-75">
+                        {% translate "students_list" %}
+                    </p>
+                </div>
+            </div>
+        </a>
+    </div>
+    {% endif %}
+
+
+    {% if perms.web.view_user %}
+    <div class="col-12 col-md-6 col-lg-4 d-flex align-items-stretch">
+        <a href="javascript:void(0)" class="card w-100 card-hover">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <i class="ti ti-users-group text-primary display-6"></i>
+                    <div class="ms-auto">
+                        <span class="fs-8">{{ teachers_count }}</span>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <h4 class="card-title mb-1">{% translate 'teachers' %}</h4>
+                    <p class="card-text fw-normal opacity-75">
+                        {% translate "teachers_list" %}
+                    </p>
+                </div>
+            </div>
+        </a>
+    </div>
+    {% endif %}
+
+    {% if perms.web.view_user and perms.web.add_user and perms.web.change_user and perms.web.delete_user %}
+    <div class="col-12 col-md-6 col-lg-4 d-flex align-items-stretch">
+        <a href="javascript:void(0)" class="card w-100 card-hover">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    
+                    <i class="ti ti-user-hexagon text-primary display-6"></i>
+                    <div class="ms-auto">
+                        <span class="fs-8">{{ admins_count }}</span>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <h4 class="card-title mb-1">{% translate 'admins' %}</h4>
+                    <p class="card-text fw-normal opacity-75">
+                        {% translate "admins_list" %}
+                    </p>
+                </div>
+            </div>
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+<!-- Row -->
+<!-- <div class="row">
+    <div class="col-6">
+        <h2 class="fw-semibold text-uppercase">Yangiliklar</h2>
+    </div>
+    <div class="col-6">
+        <div class="d-flex gap-6 justify-content-end">
+            <a href="#" class="border round-40 hstack justify-content-center rounded-circle" data-bs-toggle="tooltip"
+                data-bs-title="Facebook">
+                <img src="{% static 'images/frontend-pages/icon-facebook-fill.svg' %}" alt="facebook">
+            </a>
+            <a href="#" class="border round-40 hstack justify-content-center rounded-circle" data-bs-toggle="tooltip"
+                data-bs-title="Instagram">
+                <img src="{% static 'images/frontend-pages/icon-instagram.svg' %}" alt="instagram">
+            </a>
+            <a href="#" class="border round-40 hstack justify-content-center rounded-circle" data-bs-toggle="tooltip"
+                data-bs-title="YouTube">
+                <img src="{% static 'images/frontend-pages/icon-youtube.svg' %}" alt="youtube">
+            </a>
+            <a href="#" class="border round-40 hstack justify-content-center rounded-circle" data-bs-toggle="tooltip"
+                data-bs-title="Linckedin">
+                <img src="{% static 'images/frontend-pages/icon-linckedin.svg' %}" alt="linckedin">
+            </a>
+        </div>
+    </div>
+    <div style="height: 1500px;"></div>
+</div>  -->
+
+{% endblock content %}
