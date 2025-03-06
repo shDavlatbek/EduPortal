@@ -3,5 +3,490 @@
 {% load i18n %}
 
 {% block content %}
+<div class="container-fluid">
+  <!-- Breadcrumbs and Title -->
+  <div class="card bg-light-info shadow-none position-relative overflow-hidden mb-4">
+    <div class="card-body p-0 m-0">
+      <div class="row align-items-center">
+        <div class="col-9">
+          <h4 class="fw-semibold mb-8">{% trans "Profile Settings" %}</h4>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">{% trans "Dashboard" %}</a></li>
+              <li class="breadcrumb-item active" aria-current="page">{% trans "Profile" %}</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
 
+  {% if messages %}
+  <div class="row">
+    <div class="col-12">
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}" role="alert">
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Tabs for different sections -->
+  <div class="card">
+    <div class="card-body">
+      <ul class="nav nav-tabs" id="profileTabs" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link active" id="personal-tab" data-bs-toggle="tab" href="#personal" role="tab" aria-controls="personal" aria-selected="true">{% trans "Personal Information" %}</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="education-tab" data-bs-toggle="tab" href="#education" role="tab" aria-controls="education" aria-selected="false">{% trans "Education" %}</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="certificates-tab" data-bs-toggle="tab" href="#certificates" role="tab" aria-controls="certificates" aria-selected="false">{% trans "Language Certificates" %}</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="articles-tab" data-bs-toggle="tab" href="#articles" role="tab" aria-controls="articles" aria-selected="false">{% trans "Articles" %}</a>
+        </li>
+      </ul>
+
+      <div class="tab-content mt-4" id="profileTabsContent">
+        <!-- Personal Information Tab -->
+        <div class="tab-pane fade show active" id="personal" role="tabpanel" aria-labelledby="personal-tab">
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="profile">
+            
+            <div class="row">
+              <div class="col-md-3 mb-4">
+                <div class="card">
+                  <div class="card-body text-center">
+                    <div class="position-relative">
+                      {% if profile.picture %}
+                      <img src="{{ profile.picture.url }}" class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                      {% else %}
+                      <img src="{% static 'assets/images/profile/user-1.jpg' %}" class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                      {% endif %}
+                      <label for="id_picture" class="btn btn-sm btn-primary position-absolute bottom-0 end-0">
+                        <i class="ti ti-camera"></i>
+                      </label>
+                      <input type="file" name="picture" id="id_picture" class="d-none">
+                    </div>
+                    <h5 class="mt-3">{{ user.username }}</h5>
+                    <p class="text-muted">{{ profile.full_name }}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-9">
+                <div class="card">
+                  <div class="card-body">
+                    <h5 class="card-title mb-4">{% trans "Personal Details" %}</h5>
+                    
+                    <div class="row mb-3">
+                      <div class="col-md-6">
+                        <label for="id_full_name" class="form-label">{% trans "Full Name" %}</label>
+                        <input type="text" class="form-control" id="id_full_name" name="full_name" value="{{ profile.full_name|default:'' }}">
+                      </div>
+                      <div class="col-md-6">
+                        <label for="id_birth_date" class="form-label">{% trans "Birth Date" %}</label>
+                        <input type="date" class="form-control" id="id_birth_date" name="birth_date" value="{{ profile.birth_date|date:'Y-m-d'|default:'' }}">
+                      </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                      <div class="col-md-6">
+                        <label for="id_gender" class="form-label">{% trans "Gender" %}</label>
+                        <select class="form-select" id="id_gender" name="gender">
+                          <option value="" {% if not profile.gender %}selected{% endif %}>{% trans "Select Gender" %}</option>
+                          <option value="male" {% if profile.gender == 'male' %}selected{% endif %}>{% trans "male" %}</option>
+                          <option value="female" {% if profile.gender == 'female' %}selected{% endif %}>{% trans "female" %}</option>
+                        </select>
+                      </div>
+                      <div class="col-md-6">
+                        <label for="id_passport_number" class="form-label">{% trans "Passport Number" %}</label>
+                        <input type="text" class="form-control" id="id_passport_number" name="passport_number" value="{{ profile.passport_number|default:'' }}">
+                      </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                      <div class="col-md-6">
+                        <label for="id_birth_place" class="form-label">{% trans "Birth Place" %}</label>
+                        <input type="text" class="form-control" id="id_birth_place" name="birth_place" value="{{ profile.birth_place|default:'' }}">
+                      </div>
+                      <div class="col-md-6">
+                        <label for="id_living_place" class="form-label">{% trans "Living Place" %}</label>
+                        <input type="text" class="form-control" id="id_living_place" name="living_place" value="{{ profile.living_place|default:'' }}">
+                      </div>
+                    </div>
+                    
+                    <div class="text-end mt-4">
+                      <button type="submit" class="btn btn-primary">{% trans "Save Changes" %}</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        
+        <!-- Education Tab -->
+        <div class="tab-pane fade" id="education" role="tabpanel" aria-labelledby="education-tab">
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="education">
+            
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title mb-4">{% trans "Bachelor Degree" %}</h5>
+                
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label for="id_bachelor_major" class="form-label">{% trans "Major" %}</label>
+                    <input type="text" class="form-control" id="id_bachelor_major" name="bachelor_major" value="{{ education_profile.bachelor_major|default:'' }}">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="id_bachelor_diploma" class="form-label">{% trans "Diploma" %}</label>
+                    <input type="text" class="form-control" id="id_bachelor_diploma" name="bachelor_diploma" value="{{ education_profile.bachelor_diploma|default:'' }}">
+                  </div>
+                </div>
+                
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label for="id_bachelor_diploma_date" class="form-label">{% trans "Diploma Date" %}</label>
+                    <input type="date" class="form-control" id="id_bachelor_diploma_date" name="bachelor_diploma_date" value="{{ education_profile.bachelor_diploma_date|date:'Y-m-d'|default:'' }}">
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="card mt-4">
+              <div class="card-body">
+                <h5 class="card-title mb-4">{% trans "Master Degree" %}</h5>
+                
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label for="id_master_major" class="form-label">{% trans "Major" %}</label>
+                    <input type="text" class="form-control" id="id_master_major" name="master_major" value="{{ education_profile.master_major|default:'' }}">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="id_master_diploma" class="form-label">{% trans "Diploma" %}</label>
+                    <input type="text" class="form-control" id="id_master_diploma" name="master_diploma" value="{{ education_profile.master_diploma|default:'' }}">
+                  </div>
+                </div>
+                
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label for="id_master_diploma_date" class="form-label">{% trans "Diploma Date" %}</label>
+                    <input type="date" class="form-control" id="id_master_diploma_date" name="master_diploma_date" value="{{ education_profile.master_diploma_date|date:'Y-m-d'|default:'' }}">
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="card mt-4">
+              <div class="card-body">
+                <h5 class="card-title mb-4">{% trans "Next Education" %}</h5>
+                
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label for="id_next_education" class="form-label">{% trans "Education Type" %}</label>
+                    <select class="form-select" id="id_next_education" name="next_education">
+                      <option value="" {% if not education_profile.next_education %}selected{% endif %}>{% trans "Select Education Type" %}</option>
+                      <option value="intern" {% if education_profile.next_education == 'intern' %}selected{% endif %}>{% trans "intern_researcher" %}</option>
+                      <option value="phd" {% if education_profile.next_education == 'phd' %}selected{% endif %}>{% trans "phd" %}</option>
+                      <option value="dsc" {% if education_profile.next_education == 'dsc' %}selected{% endif %}>{% trans "dsc" %}</option>
+                      <option value="independent_phd" {% if education_profile.next_education == 'independent_phd' %}selected{% endif %}>{% trans "independent_phd" %}</option>
+                      <option value="independent_dsc" {% if education_profile.next_education == 'independent_dsc' %}selected{% endif %}>{% trans "independent_dsc" %}</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="id_next_education_level" class="form-label">{% trans "Education Level" %}</label>
+                    <select class="form-select" id="id_next_education_level" name="next_education_level">
+                      <option value="" {% if not education_profile.next_education_level %}selected{% endif %}>{% trans "Select Level" %}</option>
+                      <option value="1" {% if education_profile.next_education_level == '1' %}selected{% endif %}>1</option>
+                      <option value="2" {% if education_profile.next_education_level == '2' %}selected{% endif %}>2</option>
+                      <option value="3" {% if education_profile.next_education_level == '3' %}selected{% endif %}>3</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label for="id_next_education_major" class="form-label">{% trans "Major" %}</label>
+                    <select class="form-select" id="id_next_education_major" name="next_education_major">
+                      <option value="">{% trans "Select Major" %}</option>
+                      {% for major in education_majors %}
+                      <option value="{{ major.id }}" {% if education_profile.next_education_major_id == major.id %}selected{% endif %}>{{ major.name }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="card mt-4">
+              <div class="card-body">
+                <h5 class="card-title mb-4">{% trans "Teacher Information" %}</h5>
+                
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label for="id_teacher_full_name" class="form-label">{% trans "Teacher Full Name" %}</label>
+                    <input type="text" class="form-control" id="id_teacher_full_name" name="teacher_full_name" value="{{ education_profile.teacher_full_name|default:'' }}">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="id_teacher_degree" class="form-label">{% trans "Teacher Degree" %}</label>
+                    <input type="text" class="form-control" id="id_teacher_degree" name="teacher_degree" value="{{ education_profile.teacher_degree|default:'' }}">
+                  </div>
+                </div>
+                
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label for="id_teacher_academic_rank" class="form-label">{% trans "Teacher Academic Rank" %}</label>
+                    <input type="text" class="form-control" id="id_teacher_academic_rank" name="teacher_academic_rank" value="{{ education_profile.teacher_academic_rank|default:'' }}">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="id_teacher_work_place_position" class="form-label">{% trans "Teacher Work Place/Position" %}</label>
+                    <input type="text" class="form-control" id="id_teacher_work_place_position" name="teacher_work_place_position" value="{{ education_profile.teacher_work_place_position|default:'' }}">
+                  </div>
+                </div>
+                
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label for="id_order_number" class="form-label">{% trans "Order Number" %}</label>
+                    <input type="text" class="form-control" id="id_order_number" name="order_number" value="{{ education_profile.order_number|default:'' }}">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="id_order_date" class="form-label">{% trans "Order Date" %}</label>
+                    <input type="date" class="form-control" id="id_order_date" name="order_date" value="{{ education_profile.order_date|date:'Y-m-d'|default:'' }}">
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="text-end mt-4">
+              <button type="submit" class="btn btn-primary">{% trans "Save Education Information" %}</button>
+            </div>
+          </form>
+        </div>
+        
+        <!-- Certificates Tab -->
+        <div class="tab-pane fade" id="certificates" role="tabpanel" aria-labelledby="certificates-tab">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="card-title">{% trans "Language Certificates" %}</h5>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCertificateModal">
+                  <i class="ti ti-plus"></i> {% trans "Add Certificate" %}
+                </button>
+              </div>
+              
+              {% if language_certificates %}
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>{% trans "Certificate Name" %}</th>
+                      <th>{% trans "Date" %}</th>
+                      <th>{% trans "File" %}</th>
+                      <th>{% trans "Actions" %}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for cert in language_certificates %}
+                    <tr>
+                      <td>{{ forloop.counter }}</td>
+                      <td>{{ cert.certificate_name }}</td>
+                      <td>{{ cert.certificate_date|date:"Y-m-d"|default:"-" }}</td>
+                      <td>
+                        {% if cert.certificate_file %}
+                        <a href="{{ cert.certificate_file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                          <i class="ti ti-download"></i> {% trans "Download" %}
+                        </a>
+                        {% else %}
+                        <span class="badge bg-warning">{% trans "No File" %}</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        <form method="post" class="d-inline">
+                          {% csrf_token %}
+                          <input type="hidden" name="form_type" value="certificate_delete">
+                          <input type="hidden" name="certificate_id" value="{{ cert.id }}">
+                          <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('{% trans "Are you sure you want to delete this certificate?" %}')">
+                            <i class="ti ti-trash"></i>
+                          </button>
+                        </form>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              {% else %}
+              <div class="alert alert-info">
+                {% trans "You have not added any language certificates yet." %}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        
+        <!-- Articles Tab -->
+        <div class="tab-pane fade" id="articles" role="tabpanel" aria-labelledby="articles-tab">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="card-title">{% trans "Articles" %}</h5>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addArticleModal">
+                  <i class="ti ti-plus"></i> {% trans "Add Article" %}
+                </button>
+              </div>
+              
+              {% if articles %}
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>{% trans "Type" %}</th>
+                      <th>{% trans "Number" %}</th>
+                      <th>{% trans "Date" %}</th>
+                      <th>{% trans "File" %}</th>
+                      <th>{% trans "Actions" %}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for article in articles %}
+                    <tr>
+                      <td>{{ forloop.counter }}</td>
+                      <td>{% trans article.article_type %}</td>
+                      <td>{{ article.article_number|default:"-" }}</td>
+                      <td>{{ article.article_date|date:"Y-m-d"|default:"-" }}</td>
+                      <td>
+                        {% if article.article_file %}
+                        <a href="{{ article.article_file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                          <i class="ti ti-download"></i> {% trans "Download" %}
+                        </a>
+                        {% else %}
+                        <span class="badge bg-warning">{% trans "No File" %}</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        <form method="post" class="d-inline">
+                          {% csrf_token %}
+                          <input type="hidden" name="form_type" value="article_delete">
+                          <input type="hidden" name="article_id" value="{{ article.id }}">
+                          <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('{% trans "Are you sure you want to delete this article?" %}')">
+                            <i class="ti ti-trash"></i>
+                          </button>
+                        </form>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              {% else %}
+              <div class="alert alert-info">
+                {% trans "You have not added any articles yet." %}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Certificate Modal -->
+<div class="modal fade" id="addCertificateModal" tabindex="-1" aria-labelledby="addCertificateModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="form_type" value="certificate_add">
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="addCertificateModalLabel">{% trans "Add Language Certificate" %}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="id_certificate_name" class="form-label">{% trans "Certificate Name" %} <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="id_certificate_name" name="certificate_name" required>
+          </div>
+          
+          <div class="mb-3">
+            <label for="id_certificate_date" class="form-label">{% trans "Certificate Date" %}</label>
+            <input type="date" class="form-control" id="id_certificate_date" name="certificate_date">
+          </div>
+          
+          <div class="mb-3">
+            <label for="id_certificate_file" class="form-label">{% trans "Certificate File" %}</label>
+            <input type="file" class="form-control" id="id_certificate_file" name="certificate_file">
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+          <button type="submit" class="btn btn-primary">{% trans "Save Certificate" %}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Add Article Modal -->
+<div class="modal fade" id="addArticleModal" tabindex="-1" aria-labelledby="addArticleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="form_type" value="article_add">
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="addArticleModalLabel">{% trans "Add Article" %}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="id_article_type" class="form-label">{% trans "Article Type" %} <span class="text-danger">*</span></label>
+            <select class="form-select" id="id_article_type" name="article_type" required>
+              <option value="">{% trans "Select Article Type" %}</option>
+              <option value="republic_scientific_journal">{% trans "republic_scientific_journal" %}</option>
+              <option value="foreign_scientific_journal">{% trans "foreign_scientific_journal" %}</option>
+              <option value="republic_conference_journal">{% trans "republic_conference_journal" %}</option>
+              <option value="foreign_conference_journal">{% trans "foreign_conference_journal" %}</option>
+            </select>
+          </div>
+          
+          <div class="mb-3">
+            <label for="id_article_number" class="form-label">{% trans "Article Number" %}</label>
+            <input type="text" class="form-control" id="id_article_number" name="article_number">
+          </div>
+          
+          <div class="mb-3">
+            <label for="id_article_date" class="form-label">{% trans "Article Date" %}</label>
+            <input type="date" class="form-control" id="id_article_date" name="article_date">
+          </div>
+          
+          <div class="mb-3">
+            <label for="id_article_file" class="form-label">{% trans "Article File" %}</label>
+            <input type="file" class="form-control" id="id_article_file" name="article_file">
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+          <button type="submit" class="btn btn-primary">{% trans "Save Article" %}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 {% endblock content %}

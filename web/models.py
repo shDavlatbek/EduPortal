@@ -51,6 +51,15 @@ def help_attachment_path(instance, filename):
         filename,
     )
 
+def dissertation_path(instance, filename):
+    return os.path.join(
+        "Profile",
+        instance.user.username,
+        "Dissertations",
+        datetime.now().strftime("%Y/%m/%d"),
+        filename,
+    )
+
 
 GENDER_CHOICES = (
     ("male", _("male")),
@@ -156,6 +165,7 @@ class EducationProfile(models.Model):
     next_education_level = models.CharField(
         max_length=255,
         blank=True,
+        null=True,
         choices=(
             ("1", "1"),
             ("2", "2"),
@@ -163,7 +173,9 @@ class EducationProfile(models.Model):
         ),
     )
     next_education_major = models.ForeignKey(
-        'NextEducationMajor', on_delete=models.CASCADE, related_name="next_education_majors"
+        'NextEducationMajor', on_delete=models.CASCADE, related_name="next_education_majors",
+        blank=True,
+        null=True,
     )
     
     # Teacher
@@ -193,6 +205,13 @@ class LanguageCertificate(models.Model):
     certificate_date = models.DateField(blank=True, null=True)
     certificate_file = models.FileField(upload_to=certificate_path, blank=True, null=True)
 
+class Dissertation(models.Model):
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="dissertation"
+    )
+    dissertation_title = models.CharField(max_length=500)
+    dissertation_progress = models.IntegerField(default=0)
+    dissertation_file = models.FileField(upload_to=dissertation_path, blank=True, null=True)
 
 class NextEducationMajor(models.Model):
     name = models.CharField(max_length=255)
