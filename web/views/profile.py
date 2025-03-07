@@ -3,7 +3,10 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from web.models import Profile, EducationProfile, Article, LanguageCertificate, NextEducationMajor
+from django.urls import reverse
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from web.models import Profile, EducationProfile, Article, LanguageCertificate, NextEducationMajor, Dissertation
 from django.forms import modelform_factory
 
 TEMPLATE_DIR = 'profile'
@@ -24,12 +27,25 @@ def profile(request):
     # Get articles
     articles = Article.objects.filter(user=user)
     
+    # Get dissertation data
+    dissertation, created = Dissertation.objects.get_or_create(user=user)
+    
     # Get available education majors for dropdown
     education_majors = NextEducationMajor.objects.all()
+    
+    # Default active tab
+    active_tab = request.GET.get('tab', 'personal')
+    
+    # Initialize password form
+    password_form = PasswordChangeForm(user=user)
     
     # Form handling
     if request.method == 'POST':
         form_type = request.POST.get('form_type')
+        
+        # Save the active tab for redirecting back to the same tab
+        if request.POST.get('active_tab'):
+            active_tab = request.POST.get('active_tab')
         
         # Handle profile form
         if form_type == 'profile':
@@ -42,7 +58,7 @@ def profile(request):
             if form.is_valid():
                 form.save()
                 messages.success(request, 'Profile updated successfully')
-                return redirect('profile')
+                return redirect(f"{reverse('profile')}?tab={active_tab}")
         
         # Handle education profile form
         elif form_type == 'education':
@@ -60,7 +76,7 @@ def profile(request):
             if form.is_valid():
                 form.save()
                 messages.success(request, 'Education profile updated successfully')
-                return redirect('profile')
+                return redirect(f"{reverse('profile')}?tab={active_tab}")
             
         # Handle language certificate form
         elif form_type == 'certificate_add':
@@ -74,7 +90,7 @@ def profile(request):
                 certificate.user = user
                 certificate.save()
                 messages.success(request, 'Certificate added successfully')
-                return redirect('profile')
+                return redirect(f"{reverse('profile')}?tab={active_tab}")
                 
         # Handle article form
         elif form_type == 'article_add':
@@ -88,7 +104,32 @@ def profile(request):
                 article.user = user
                 article.save()
                 messages.success(request, 'Article added successfully')
-                return redirect('profile')
+                return redirect(f"{reverse('profile')}?tab={active_tab}")
+        
+        # Handle dissertation form
+        elif form_type == 'dissertation':
+            DissertationForm = modelform_factory(
+                Dissertation,
+                fields=['dissertation_title', 'dissertation_progress', 'dissertation_file']
+            )
+            form = DissertationForm(request.POST, request.FILES, instance=dissertation)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Dissertation updated successfully')
+                return redirect(f"{reverse('profile')}?tab={active_tab}")
+        
+        # Handle password change form
+        elif form_type == 'password':
+            password_form = PasswordChangeForm(user=user, data=request.POST)
+            if password_form.is_valid():
+                password_form.save()
+                # Update the session to prevent the user from being logged out
+                update_session_auth_hash(request, user)
+                messages.success(request, 'Your password was successfully updated!')
+                return redirect(f"{reverse('profile')}?tab={active_tab}")
+            else:
+                # If form is invalid, we'll display the errors in the template
+                active_tab = 'password'
                 
         # Handle certificate deletion
         elif form_type == 'certificate_delete':
@@ -99,7 +140,7 @@ def profile(request):
                 messages.success(request, 'Certificate deleted successfully')
             except LanguageCertificate.DoesNotExist:
                 messages.error(request, 'Certificate not found')
-            return redirect('profile')
+            return redirect(f"{reverse('profile')}?tab={active_tab}")
             
         # Handle article deletion
         elif form_type == 'article_delete':
@@ -110,7 +151,7 @@ def profile(request):
                 messages.success(request, 'Article deleted successfully')
             except Article.DoesNotExist:
                 messages.error(request, 'Article not found')
-            return redirect('profile')
+            return redirect(f"{reverse('profile')}?tab={active_tab}")
     
     context = {
         'profile': profile_instance,
@@ -118,6 +159,10 @@ def profile(request):
         'language_certificates': language_certificates,
         'articles': articles,
         'education_majors': education_majors,
+        'dissertation': dissertation,
+        'active_tab': active_tab,
+        'password_form': password_form,
+        'role': request.user.groups.first().name,
     }
     
     return render(request, os.path.join(TEMPLATE_DIR, 'index.html'), context)

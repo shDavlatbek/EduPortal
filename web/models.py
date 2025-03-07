@@ -139,7 +139,7 @@ class Profile(models.Model):
     birth_place = models.CharField(max_length=255, blank=True, null=True)
     living_place = models.CharField(max_length=255, blank=True, null=True)
     passport_number = models.CharField(
-        max_length=255, blank=True, null=True, validators=[PassportNumberValidator]
+        max_length=9, blank=True, null=True, validators=[PassportNumberValidator]
     )
 
 
