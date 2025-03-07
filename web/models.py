@@ -36,7 +36,7 @@ def article_path(instance, filename):
 def report_path(instance, filename):
     return os.path.join(
         "Profile",
-        instance.user.username,
+        instance.student.username,
         "Reports",
         datetime.now().strftime("%Y/%m/%d"),
         filename,

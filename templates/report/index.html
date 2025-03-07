@@ -2,14 +2,570 @@
 {% load static %}
 {% load i18n %}
 
-
-
-
 {% block content %}
+<div class="container-fluid">
+  <!-- Breadcrumbs and Title -->
+  <div class="card bg-light-info shadow-none position-relative overflow-hidden mb-4">
+    <div class="card-body px-4 py-3">
+      <div class="row align-items-center">
+        <div class="col-9">
+          <h4 class="fw-semibold mb-8">{% trans "reports" %}</h4>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">{% trans "dashboard" %}</a></li>
+              <li class="breadcrumb-item active" aria-current="page">{% trans "reports" %}</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
 
+  {% if messages %}
+  <div class="row">
+    <div class="col-12">
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}" role="alert">
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
 
+  <!-- Main Content -->
+  <div class="card">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-semibold">{% trans "reports" %}</h4>
+        {% if is_student %}
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addReportModal">
+          <i class="ti ti-plus"></i> {% trans "add_report" %}
+        </button>
+        {% endif %}
+      </div>
+      
+      <!-- Filters -->
+      <div class="mb-4">
+        <div class="d-flex gap-2 flex-wrap mb-3">
+          <a href="?status=all" class="btn btn-{% if filter_status == 'all' or not filter_status %}primary{% else %}light{% endif %}">{% trans "all" %}</a>
+          <a href="?status=draft" class="btn btn-{% if filter_status == 'draft' %}primary{% else %}light{% endif %}">{% trans "draft" %}</a>
+          <a href="?status=pending" class="btn btn-{% if filter_status == 'pending' %}primary{% else %}light{% endif %}">{% trans "pending" %}</a>
+          <a href="?status=submitted" class="btn btn-{% if filter_status == 'submitted' %}primary{% else %}light{% endif %}">{% trans "submitted" %}</a>
+          <a href="?status=approved" class="btn btn-{% if filter_status == 'approved' %}primary{% else %}light{% endif %}">{% trans "approved" %}</a>
+        </div>
+        
+        <form method="get" class="mb-4">
+          <div class="row g-2">
+            <div class="col-12 col-md-8">
+              <div class="input-group">
+                <input type="text" class="form-control" name="search" value="{{ search_query|default:'' }}" placeholder="{% trans 'search_reports' %}...">
+                <select class="form-select" name="search_field" style="max-width: 150px;">
+                  <option value="all" {% if search_field == 'all' %}selected{% endif %}>{% trans "all_fields" %}</option>
+                  <option value="title" {% if search_field == 'title' %}selected{% endif %}>{% trans "title" %}</option>
+                  <option value="description" {% if search_field == 'description' %}selected{% endif %}>{% trans "description" %}</option>
+                  <option value="type" {% if search_field == 'type' %}selected{% endif %}>{% trans "type" %}</option>
+                </select>
+                <button class="btn btn-primary" type="submit">
+                  <i class="ti ti-search"></i>
+                </button>
+                {% if search_query %}
+                <a href="?{% if filter_status %}status={{ filter_status }}{% endif %}" class="btn btn-danger">
+                  <i class="ti ti-x"></i>
+                </a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      
+      <!-- Reports Cards -->
+      {% if reports %}
+        <div class="row reports-container">
+          {% for report in reports %}
+            <div class="col-12 mb-3">
+              <div class="card border-start border-4 {% if report.status == 'draft' %}border-secondary{% elif report.status == 'submitted' %}border-info{% elif report.status == 'approved' %}border-success{% elif report.status == 'rejected' %}border-danger{% else %}border-warning{% endif %}">
+                <div class="card-body p-3">
+                  <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                      <h5 class="mb-1">{{ report.title }}</h5>
+                      <p class="mb-1 text-muted">{% if is_teacher or is_admin %}
+                        <strong>{% trans "student" %}:</strong> {{ report.student.profile.full_name|default:report.student.username }}
+                        {% else %}
+                        {{ report.id }}
+                        {% endif %}
+                      </p>
+                      
+                      <p class="mb-0">
+                        <span class="text-muted"><i class="ti ti-calendar me-1"></i> {% trans "submitted" %}: {{ report.submitted_at|date:"M d, Y"|default:"-" }}</span>
+                        <span class="ms-3 text-muted"><i class="ti ti-file-text me-1"></i> {% trans "type" %}: {% trans report.report_type %}</span>
+                      </p>
+                    </div>
+                    
+                    <div class="d-flex flex-column align-items-end">
+                      <span class="badge bg-{% if report.status == 'draft' %}secondary{% elif report.status == 'submitted' %}info{% elif report.status == 'approved' %}success{% elif report.status == 'rejected' %}danger{% else %}warning{% endif %} mb-2">{% trans report.status %}</span>
+                      
+                      <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-primary view-report-btn" data-bs-toggle="modal" data-bs-target="#viewReportModal" 
+                          data-id="{{ report.id }}" 
+                          data-title="{{ report.title }}" 
+                          data-description="{{ report.description }}" 
+                          data-type="{% trans report.report_type %}"
+                          data-student="{{ report.student.profile.full_name|default:report.student.username }}"
+                          data-feedback="{{ report.feedback }}">
+                          <i class="ti ti-eye"></i> {% trans "view_details" %}
+                        </button>
+                        
+                        {% if is_student and report.status == 'draft' or report.status == 'rejected' %}
+                        <button type="button" class="btn btn-sm btn-outline-primary edit-report-btn" data-bs-toggle="modal" data-bs-target="#editReportModal" 
+                          data-id="{{ report.id }}" 
+                          data-title="{{ report.title }}" 
+                          data-description="{{ report.description }}" 
+                          data-type="{{ report.report_type }}"
+                          data-duedate="{{ report.due_date|date:'Y-m-d' }}">
+                          <i class="ti ti-edit"></i> {% trans "edit" %}
+                        </button>
+                        {% endif %}
+                        
+                        {% if is_teacher and report.status == 'submitted' %}
+                        <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#approveReportModal" data-id="{{ report.id }}">
+                          <i class="ti ti-check"></i> {% trans "approve" %}
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#rejectReportModal" data-id="{{ report.id }}">
+                          <i class="ti ti-x"></i> {% trans "reject" %}
+                        </button>
+                        {% endif %}
+                        
+                        {% if is_admin %}
+                          {% if not report.assigned_to %}
+                          <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#assignReportModal" data-id="{{ report.id }}">
+                            <i class="ti ti-user"></i> {% trans "assign" %}
+                          </button>
+                          {% else %}
+                          <button type="button" class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#assignReportModal" data-id="{{ report.id }}">
+                            <i class="ti ti-refresh"></i> {% trans "reassign" %}
+                          </button>
+                          {% endif %}
+                        {% endif %}
+                        
+                        {% if is_student or is_admin %}
+                        <form method="post" class="d-inline" onsubmit="return confirm('{% trans 'are_you_sure_you_want_to_delete_this_report' %}');">
+                          {% csrf_token %}
+                          <input type="hidden" name="action" value="delete_report">
+                          <input type="hidden" name="report_id" value="{{ report.id }}">
+                          <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <i class="ti ti-trash"></i>
+                          </button>
+                        </form>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if reports.has_other_pages %}
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center mt-4">
+            {% if reports.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page=1{% if filter_status %}&status={{ filter_status }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if search_field %}&search_field={{ search_field }}{% endif %}" aria-label="First">
+                <i class="ti ti-chevron-left"></i><i class="ti ti-chevron-left"></i>
+              </a>
+            </li>
+            <li class="page-item">
+              <a class="page-link" href="?page={{ reports.previous_page_number }}{% if filter_status %}&status={{ filter_status }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if search_field %}&search_field={{ search_field }}{% endif %}" aria-label="Previous">
+                <i class="ti ti-chevron-left"></i>
+              </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+              <span class="page-link"><i class="ti ti-chevron-left"></i><i class="ti ti-chevron-left"></i></span>
+            </li>
+            <li class="page-item disabled">
+              <span class="page-link"><i class="ti ti-chevron-left"></i></span>
+            </li>
+            {% endif %}
+            
+            {% for i in paginator_range %}
+              {% if i == reports.number %}
+              <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+              {% elif i == '...' %}
+              <li class="page-item disabled"><span class="page-link">{{ i }}</span></li>
+              {% else %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ i }}{% if filter_status %}&status={{ filter_status }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if search_field %}&search_field={{ search_field }}{% endif %}">{{ i }}</a>
+              </li>
+              {% endif %}
+            {% endfor %}
+            
+            {% if reports.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ reports.next_page_number }}{% if filter_status %}&status={{ filter_status }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if search_field %}&search_field={{ search_field }}{% endif %}" aria-label="Next">
+                <i class="ti ti-chevron-right"></i>
+              </a>
+            </li>
+            <li class="page-item">
+              <a class="page-link" href="?page={{ reports.paginator.num_pages }}{% if filter_status %}&status={{ filter_status }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if search_field %}&search_field={{ search_field }}{% endif %}" aria-label="Last">
+                <i class="ti ti-chevron-right"></i><i class="ti ti-chevron-right"></i>
+              </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+              <span class="page-link"><i class="ti ti-chevron-right"></i></span>
+            </li>
+            <li class="page-item disabled">
+              <span class="page-link"><i class="ti ti-chevron-right"></i><i class="ti ti-chevron-right"></i></span>
+            </li>
+            {% endif %}
+          </ul>
+        </nav>
+        {% endif %}
+      {% else %}
+        <div class="alert alert-info">
+          {% trans "no_reports_found" %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
 
+<!-- Add Report Modal (Student) -->
+{% if is_student %}
+<div class="modal fade" id="addReportModal" tabindex="-1" aria-labelledby="addReportModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="add_report">
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="addReportModalLabel">{% trans "add_report" %}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="id_title" class="form-label">{% trans "title" %} <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="id_title" name="title" required>
+          </div>
+          
+          <div class="mb-3">
+            <label for="id_description" class="form-label">{% trans "description" %}</label>
+            <textarea class="form-control" id="id_description" name="description" rows="4"></textarea>
+          </div>
+          
+          <div class="mb-3">
+            <label for="id_report_type" class="form-label">{% trans "report_type" %} <span class="text-danger">*</span></label>
+            <select class="form-select" id="id_report_type" name="report_type" required>
+              <option value="">{% trans "select_report_type" %}</option>
+              <option value="3-month">{% trans "3-month" %}</option>
+              <option value="6-month">{% trans "6-month" %}</option>
+              <option value="annual">{% trans "annual" %}</option>
+              <option value="other">{% trans "other" %}</option>
+            </select>
+          </div>
+          
+          <div class="mb-3">
+            <label for="id_file" class="form-label">{% trans "report_file" %}</label>
+            <input type="file" class="form-control" id="id_file" name="file">
+          </div>
+          
+          <div class="mb-3">
+            <label for="id_due_date" class="form-label">{% trans "due_date" %}</label>
+            <input type="date" class="form-control" id="id_due_date" name="due_date">
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "cancel" %}</button>
+          <button type="submit" class="btn btn-primary">{% trans "save_report" %}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
+<!-- Edit Report Modal (Student) -->
+<div class="modal fade" id="editReportModal" tabindex="-1" aria-labelledby="editReportModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="update_report">
+        <input type="hidden" name="report_id" id="edit_report_id">
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="editReportModalLabel">{% trans "edit_report" %}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="edit_title" class="form-label">{% trans "title" %} <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="edit_title" name="title" required>
+          </div>
+          
+          <div class="mb-3">
+            <label for="edit_description" class="form-label">{% trans "description" %}</label>
+            <textarea class="form-control" id="edit_description" name="description" rows="4"></textarea>
+          </div>
+          
+          <div class="mb-3">
+            <label for="edit_report_type" class="form-label">{% trans "report_type" %} <span class="text-danger">*</span></label>
+            <select class="form-select" id="edit_report_type" name="report_type" required>
+              <option value="">{% trans "select_report_type" %}</option>
+              <option value="3-month">{% trans "3-month" %}</option>
+              <option value="6-month">{% trans "6-month" %}</option>
+              <option value="annual">{% trans "annual" %}</option>
+              <option value="other">{% trans "other" %}</option>
+            </select>
+          </div>
+          
+          <div class="mb-3">
+            <label for="edit_file" class="form-label">{% trans "report_file" %}</label>
+            <input type="file" class="form-control" id="edit_file" name="file">
+            <small class="form-text text-muted">{% trans "leave_empty_to_keep_current_file" %}</small>
+          </div>
+          
+          <div class="mb-3">
+            <label for="edit_due_date" class="form-label">{% trans "due_date" %}</label>
+            <input type="date" class="form-control" id="edit_due_date" name="due_date">
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "cancel" %}</button>
+          <button type="submit" class="btn btn-primary">{% trans "update_report" %}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
 
+<!-- View Report Modal (All Users) -->
+<div class="modal fade" id="viewReportModal" tabindex="-1" aria-labelledby="viewReportModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="viewReportModalLabel">{% trans "view_report" %}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label fw-bold">{% trans "student" %}:</label>
+          <p id="view_student"></p>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label fw-bold">{% trans "title" %}:</label>
+          <p id="view_title"></p>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label fw-bold">{% trans "type" %}:</label>
+          <p id="view_type"></p>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label fw-bold">{% trans "description" %}:</label>
+          <p id="view_description"></p>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label fw-bold">{% trans "feedback" %}:</label>
+          <p id="view_feedback"></p>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "close" %}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Approve Report Modal (Teacher) -->
+{% if is_teacher %}
+<div class="modal fade" id="approveReportModal" tabindex="-1" aria-labelledby="approveReportModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="approve_report">
+        <input type="hidden" name="report_id" id="approve_report_id">
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="approveReportModalLabel">{% trans "approve_report" %}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="approve_feedback" class="form-label">{% trans "feedback" %}</label>
+            <textarea class="form-control" id="approve_feedback" name="feedback" rows="4" placeholder="{% trans 'provide_feedback_to_student' %}"></textarea>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "cancel" %}</button>
+          <button type="submit" class="btn btn-success">{% trans "approve" %}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Reject Report Modal (Teacher) -->
+<div class="modal fade" id="rejectReportModal" tabindex="-1" aria-labelledby="rejectReportModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="reject_report">
+        <input type="hidden" name="report_id" id="reject_report_id">
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="rejectReportModalLabel">{% trans "reject_report" %}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="reject_feedback" class="form-label">{% trans "feedback" %} <span class="text-danger">*</span></label>
+            <textarea class="form-control" id="reject_feedback" name="feedback" rows="4" placeholder="{% trans 'explain_why_report_is_rejected' %}" required></textarea>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "cancel" %}</button>
+          <button type="submit" class="btn btn-danger">{% trans "reject" %}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Assign Report Modal (Admin) -->
+{% if is_admin %}
+<div class="modal fade" id="assignReportModal" tabindex="-1" aria-labelledby="assignReportModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="assign_report">
+        <input type="hidden" name="report_id" id="assign_report_id">
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="assignReportModalLabel">{% trans "assign_report_to_teacher" %}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="assign_teacher" class="form-label">{% trans "select_teacher" %} <span class="text-danger">*</span></label>
+            <select class="form-select" id="assign_teacher" name="teacher_id" required>
+              <option value="">{% trans "select_teacher" %}</option>
+              {% for teacher in teachers %}
+              <option value="{{ teacher.id }}">{{ teacher.profile.full_name|default:teacher.username }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "cancel" %}</button>
+          <button type="submit" class="btn btn-primary">{% trans "assign" %}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Edit report modal
+    const editButtons = document.querySelectorAll('.edit-report-btn');
+    if (editButtons) {
+      editButtons.forEach(function(button) {
+        button.addEventListener('click', function(e) {
+          const reportId = this.getAttribute('data-id');
+          const title = this.getAttribute('data-title');
+          const description = this.getAttribute('data-description');
+          const type = this.getAttribute('data-type');
+          const dueDate = this.getAttribute('data-duedate');
+          
+          document.getElementById('edit_report_id').value = reportId;
+          document.getElementById('edit_title').value = title;
+          document.getElementById('edit_description').value = description;
+          document.getElementById('edit_report_type').value = type;
+          document.getElementById('edit_due_date').value = dueDate;
+        });
+      });
+    }
+    
+    // View report modal
+    const viewButtons = document.querySelectorAll('.view-report-btn');
+    if (viewButtons) {
+      viewButtons.forEach(function(button) {
+        button.addEventListener('click', function(e) {
+          const title = this.getAttribute('data-title');
+          const description = this.getAttribute('data-description');
+          const type = this.getAttribute('data-type');
+          const student = this.getAttribute('data-student');
+          const feedback = this.getAttribute('data-feedback');
+          
+          document.getElementById('view_title').textContent = title;
+          document.getElementById('view_description').textContent = description || "-";
+          document.getElementById('view_type').textContent = type;
+          document.getElementById('view_student').textContent = student;
+          document.getElementById('view_feedback').textContent = feedback || "-";
+        });
+      });
+    }
+    
+    // Approve/Reject report modals
+    const approveButtons = document.querySelectorAll('[data-bs-target="#approveReportModal"]');
+    if (approveButtons) {
+      approveButtons.forEach(function(button) {
+        button.addEventListener('click', function(e) {
+          const reportId = this.getAttribute('data-id');
+          document.getElementById('approve_report_id').value = reportId;
+        });
+      });
+    }
+    
+    const rejectButtons = document.querySelectorAll('[data-bs-target="#rejectReportModal"]');
+    if (rejectButtons) {
+      rejectButtons.forEach(function(button) {
+        button.addEventListener('click', function(e) {
+          const reportId = this.getAttribute('data-id');
+          document.getElementById('reject_report_id').value = reportId;
+        });
+      });
+    }
+    
+    // Assign report modal
+    const assignButtons = document.querySelectorAll('[data-bs-target="#assignReportModal"]');
+    if (assignButtons) {
+      assignButtons.forEach(function(button) {
+        button.addEventListener('click', function(e) {
+          const reportId = this.getAttribute('data-id');
+          document.getElementById('assign_report_id').value = reportId;
+        });
+      });
+    }
+  });
+</script>
+{% endblock %}
 {% endblock content %}
-

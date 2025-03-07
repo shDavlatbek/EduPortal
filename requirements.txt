@@ -1,5 +1,7 @@
 asgiref==3.8.1
 Django==5.1.6
+django-cleanup==9.0.0
+django-cors-headers==4.7.0
 django-filter==24.3
 django-jazzmin==3.0.1
 django-modeltranslation==0.19.12
@@ -16,4 +18,3 @@ PyYAML==6.0.2
 sqlparse==0.5.3
 tzdata==2025.1
 uritemplate==4.1.1
-django-cors-headers
