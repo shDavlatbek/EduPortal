@@ -10,6 +10,7 @@ from django.contrib.auth.models import Group
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from web.models import Report, User, Profile
 from django.forms import modelform_factory
+from django.utils.translation import gettext as _
 
 TEMPLATE_DIR = 'report'
 
@@ -23,15 +24,21 @@ def report(request):
     is_teacher = 'teacher_group' in user_groups
     is_admin = 'admin_group' in user_groups or 'superadmin_group' in user_groups
     
+    # Auto-approve reports past due date
+    auto_approve_reports(is_admin)
+    
     # Get filter parameters
     filter_status = request.GET.get('status')
     search_query = request.GET.get('search')
     search_field = request.GET.get('search_field', 'all')
     
+    # Current datetime for comparison with due dates
+    current_datetime = timezone.now()
+    
     # Get reports based on role
     if is_admin:
-        # Admins and superadmins see all reports
-        reports_queryset = Report.objects.all()
+        # Admins and superadmins see all reports except drafts
+        reports_queryset = Report.objects.exclude(status='draft')
         teachers = User.objects.filter(groups__name='teacher_group')
     elif is_teacher:
         # Teachers see reports assigned to them
@@ -70,7 +77,7 @@ def report(request):
     
     # Pagination
     page = request.GET.get('page', 1)
-    items_per_page = 5 # You can adjust this number
+    items_per_page = 5  # You can adjust this number
     paginator = Paginator(reports_queryset, items_per_page)
     
     try:
@@ -107,51 +114,79 @@ def report(request):
     if request.method == 'POST':
         action = request.POST.get('action')
         
-        # Add new report (student)
+        # Add new report (student) - can be saved as draft or submitted
         if action == 'add_report' and is_student:
             ReportForm = modelform_factory(
                 Report, 
-                fields=['title', 'description', 'report_type', 'file', 'due_date']
+                fields=['title', 'description', 'report_type', 'file']
             )
             form = ReportForm(request.POST, request.FILES)
             if form.is_valid():
                 report = form.save(commit=False)
                 report.student = user
-                report.status = 'submitted'
-                report.submitted_at = timezone.now()
+                
+                # Set status based on submit button (draft or submit)
+                submit_type = request.POST.get('submit_type', 'submit')
+                if submit_type == 'draft':
+                    report.status = 'draft'
+                else:
+                    report.status = 'submitted'
+                    report.submitted_at = timezone.now()
+                
+                # Due date can only be set by admins when assigning
                 report.save()
-                messages.success(request, 'Report submitted successfully')
+                
+                if submit_type == 'draft':
+                    messages.success(request, 'Report saved as draft')
+                else:
+                    messages.success(request, 'Report submitted successfully')
                 return redirect('report')
         
-        # Update existing report (student)
+        # Update existing report (student only)
         elif action == 'update_report' and is_student:
             report_id = request.POST.get('report_id')
             report = get_object_or_404(Report, id=report_id, student=user)
             
-            # Only allow updates if report is in draft or rejected state
-            if report.status in ['draft', 'rejected']:
+            # Only allow updates if report is in draft or submitted state
+            if report.status in ['draft', 'submitted']:
                 ReportForm = modelform_factory(
                     Report, 
-                    fields=['title', 'description', 'report_type', 'file', 'due_date']
+                    fields=['title', 'description', 'report_type', 'file']
                 )
                 form = ReportForm(request.POST, request.FILES, instance=report)
                 if form.is_valid():
                     updated_report = form.save(commit=False)
-                    updated_report.status = 'submitted'
-                    updated_report.submitted_at = timezone.now()
+                    
+                    # Set status based on submit button (draft or submit)
+                    submit_type = request.POST.get('submit_type', 'submit')
+                    if submit_type == 'draft':
+                        updated_report.status = 'draft'
+                    else:
+                        updated_report.status = 'submitted'
+                        updated_report.submitted_at = timezone.now()
+                    
                     updated_report.save()
-                    messages.success(request, 'Report updated and resubmitted successfully')
+                    
+                    if submit_type == 'draft':
+                        messages.success(request, 'Report saved as draft')
+                    else:
+                        messages.success(request, 'Report updated and submitted successfully')
                     return redirect('report')
             else:
-                messages.error(request, 'You can only update reports in draft or rejected status')
+                messages.error(request, 'You can only update reports in draft or submitted status')
         
-        # Approve report (teacher)
+        # Approve report (teacher) - only before due date
         elif action == 'approve_report' and is_teacher:
             report_id = request.POST.get('report_id')
             feedback = request.POST.get('feedback')
             report = get_object_or_404(Report, id=report_id, assigned_to=user)
             
-            if report.status == 'submitted':
+            # Check if the report is past due date
+            if report.due_date and current_datetime > report.due_date:
+                messages.error(request, 'Cannot approve report past due date')
+                return redirect('report')
+            
+            if report.status == 'submitted' or report.status == 'pending':
                 report.status = 'approved'
                 report.feedback = feedback
                 report.reviewed_by = user
@@ -160,13 +195,18 @@ def report(request):
                 messages.success(request, 'Report approved successfully')
                 return redirect('report')
         
-        # Reject report (teacher)
+        # Reject report (teacher) - only before due date
         elif action == 'reject_report' and is_teacher:
             report_id = request.POST.get('report_id')
             feedback = request.POST.get('feedback')
             report = get_object_or_404(Report, id=report_id, assigned_to=user)
             
-            if report.status == 'submitted':
+            # Check if the report is past due date
+            if report.due_date and current_datetime > report.due_date:
+                messages.error(request, 'Cannot reject report past due date')
+                return redirect('report')
+            
+            if report.status == 'submitted' or report.status == 'pending':
                 report.status = 'rejected'
                 report.feedback = feedback
                 report.reviewed_by = user
@@ -175,10 +215,11 @@ def report(request):
                 messages.success(request, 'Report rejected successfully')
                 return redirect('report')
         
-        # Assign report to teacher (admin)
+        # Assign report to teacher (admin) - including setting due date
         elif action == 'assign_report' and is_admin:
             report_id = request.POST.get('report_id')
             teacher_id = request.POST.get('teacher_id')
+            due_date = request.POST.get('due_date')
             
             report = get_object_or_404(Report, id=report_id)
             teacher = get_object_or_404(User, id=teacher_id)
@@ -186,8 +227,16 @@ def report(request):
             # Check if the assigned user is actually a teacher
             if Group.objects.get(name='teacher_group') in teacher.groups.all():
                 report.assigned_to = teacher
+                
+                # Set due date when assigning
+                if due_date:
+                    report.due_date = due_date
+                
+                # Change status to pending when assigned to a teacher
+                if report.status == 'submitted' or report.status == 'draft':
+                    report.status = 'pending'
                 report.save()
-                messages.success(request, 'Report assigned successfully')
+                messages.success(request, 'Report assigned successfully with due date')
                 return redirect('report')
             else:
                 messages.error(request, 'Selected user is not a teacher')
@@ -233,6 +282,31 @@ def report(request):
         'filter_status': filter_status,
         'search_query': search_query,
         'search_field': search_field,
+        'current_date': current_datetime,
     }
     
     return render(request, os.path.join(TEMPLATE_DIR, 'index.html'), context)
+
+
+def auto_approve_reports(is_admin_request=False):
+    """Auto approve reports that are past their due date and still pending/submitted"""
+    current_datetime = timezone.now()
+    
+    # Find reports past due date that are not yet approved/rejected
+    reports_to_approve = Report.objects.filter(
+        Q(status='pending') | Q(status='submitted'),
+        due_date__lt=current_datetime,
+        assigned_to__isnull=False
+    )
+    
+    for report in reports_to_approve:
+        report.status = 'approved'
+        report.feedback = _("teacher_did_not_review_by_due_date_automatically_approved")
+        report.review_date = current_datetime
+        report.save()
+    
+    # If called from an admin request, show a message about auto-approved reports
+    if is_admin_request and reports_to_approve.count() > 0:
+        return reports_to_approve.count()
+    
+    return 0

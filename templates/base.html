@@ -65,10 +65,10 @@
   <script>
     const rootStyles = getComputedStyle(document.documentElement);
     const reportColors = {
-      submitted: rootStyles.getPropertyValue('--report-submitted').trim(),
-      underReview: rootStyles.getPropertyValue('--report-under-review').trim(),
-      approved: rootStyles.getPropertyValue('--report-approved').trim(),
-      rejected: rootStyles.getPropertyValue('--report-rejected').trim()
+      submitted: rootStyles.getPropertyValue('--bs-primary').trim(),
+      pending: rootStyles.getPropertyValue('--bs-warning').trim(),
+      approved: rootStyles.getPropertyValue('--bs-success').trim(),
+      rejected: rootStyles.getPropertyValue('--bs-danger').trim()
     }
   </script>
   {% block extra_js %}

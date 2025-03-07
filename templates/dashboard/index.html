@@ -20,23 +20,23 @@
     }
 
     .submitted {
-        background-color: rgba(var(--report-submitted-rgb), 0.1);
-        border-left: 5px solid var(--report-submitted);
+        background-color: rgba(var(--bs-primary-rgb), 0.1);
+        border-left: 5px solid var(--bs-primary);
     }
 
     .approved {
-        background-color: rgba(var(--report-approved-rgb), 0.1);
-        border-left: 5px solid var(--report-approved);
+        background-color: rgba(var(--bs-success-rgb), 0.1);
+        border-left: 5px solid var(--bs-success);
     }
 
     .rejected {
-        background-color: rgba(var(--report-rejected-rgb), 0.1);
-        border-left: 5px solid var(--report-rejected);
+        background-color: rgba(var(--bs-danger-rgb), 0.1);
+        border-left: 5px solid var(--bs-danger);
     }
 
     .under-review {
-        background-color: rgba(var(--report-under-review-rgb), 0.1);
-        border-left: 5px solid var(--report-under-review);
+        background-color: rgba(var(--bs-warning-rgb), 0.1);
+        border-left: 5px solid var(--bs-warning);
     }
 
     .status-icon {
@@ -102,7 +102,6 @@
 
 <div class="row">
 
-    {% if perms.web.view_user %}
     <div class="col-12 col-md-6 col-lg-4 d-flex align-items-stretch">
         <a href="javascript:void(0)" class="card w-100 card-hover">
             <div class="card-body">
@@ -121,10 +120,8 @@
             </div>
         </a>
     </div>
-    {% endif %}
 
 
-    {% if perms.web.view_user %}
     <div class="col-12 col-md-6 col-lg-4 d-flex align-items-stretch">
         <a href="javascript:void(0)" class="card w-100 card-hover">
             <div class="card-body">
@@ -143,7 +140,6 @@
             </div>
         </a>
     </div>
-    {% endif %}
 
     {% if perms.web.view_user and perms.web.add_user and perms.web.change_user and perms.web.delete_user %}
     <div class="col-12 col-md-6 col-lg-4 d-flex align-items-stretch">
@@ -172,10 +168,9 @@
 
 </div>
 
-{% if perms.web.assign_report %}
     <div class="row">
     <!-- Pie Chart Column -->
-        <div class="col-lg-7">
+        <div class="col-xl-7">
             <div class="card h-100">
                 <div class="card-header">
                     <h4 class="m-0"><i class="ti ti-chart-pie-filled me-2"></i>{% translate 'chart_all_reports' %}</h4>
@@ -189,7 +184,7 @@
         </div>
 
         <!-- Status List Column -->
-        <div class="col-lg-5">
+        <div class="col-xl-5">
             <div class="card h-100">
                 <div class="card-header">
                     <h4 class="m-0"><i class="ti ti-list-details me-2"></i>{% translate 'chart_all_reports_list' %}</h4>
@@ -197,47 +192,47 @@
                 <div class="card-body">
                     <div class="status-list">
                         <div class="status-item submitted d-flex align-items-center">
-                            <div class="status-icon" style="background-color: var(--report-submitted);">
+                            <div class="status-icon bg-primary">
                                 <i class="ti ti-file-import"></i>
                             </div>
                             <div class="status-text">
                                 <div class="status-title">{% translate 'submitted' %}</div>
                                 <p class="status-desc">{% translate 'reports_awaiting_initial_review' %}</p>
                             </div>
-                            <span class="badge rounded-pill" style="background-color: var(--report-submitted);" id="submitted-count">28</span>
+                            <span class="badge rounded-pill bg-primary" id="submitted-count">{{ submitted_count }}</span>
                         </div>
 
                         <div class="status-item under-review d-flex align-items-center">
-                            <div class="status-icon" style="background-color: var(--report-under-review);">
+                            <div class="status-icon bg-warning">
                                 <i class="ti ti-search"></i>
                             </div>
                             <div class="status-text">
-                                <div class="status-title">{% translate 'under_review' %}</div>
+                                <div class="status-title">{% translate 'pending' %}</div>
                                 <p class="status-desc">{% translate 'reports_currently_being_evaluated' %}</p>
                             </div>
-                            <span class="badge rounded-pill" style="background-color: var(--report-under-review);" id="review-count">15</span>
+                            <span class="badge rounded-pill bg-warning" id="review-count">{{ pending_count }}</span>
                         </div>
 
                         <div class="status-item approved d-flex align-items-center">
-                            <div class="status-icon" style="background-color: var(--report-approved);">
+                            <div class="status-icon bg-success">
                                 <i class="ti ti-check"></i>
                             </div>
                             <div class="status-text">
                                 <div class="status-title">{% translate 'approved' %}</div>
                                 <p class="status-desc">{% translate 'reports_that_passed_all_requirements' %}</p>
                             </div>
-                            <span class="badge rounded-pill" style="background-color: var(--report-approved);" id="approved-count">42</span>
+                            <span class="badge rounded-pill bg-success" id="approved-count">{{ approved_count }}</span>
                         </div>
 
                         <div class="status-item rejected d-flex align-items-center">
-                            <div class="status-icon" style="background-color: var(--report-rejected);">
+                            <div class="status-icon bg-danger">
                                 <i class="ti ti-x"></i>
                             </div>
                             <div class="status-text">
                                 <div class="status-title">{% translate 'rejected' %}</div>
                                 <p class="status-desc">{% translate 'reports_requiring_revision' %}</p>
                             </div>
-                            <span class="badge rounded-pill" style="background-color: var(--report-rejected);" id="rejected-count">7</span>
+                            <span class="badge rounded-pill bg-danger" id="rejected-count">{{ rejected_count }}</span>
                         </div>
                     </div>
 
@@ -249,14 +244,13 @@
                                 </div>
                                 <span class="fw-bold">{% translate 'total_reports' %}</span>
                             </div>
-                            <span class="badge bg-dark rounded-pill fs-6" id="total-count">92</span>
+                            <span class="badge bg-dark rounded-pill fs-6" id="total-count">{{ total_count }}</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    {% endif %}
 <!-- Row -->
 <!-- <div class="row">
     <div class="col-6">
@@ -291,36 +285,34 @@
 <script>
     // Data for student reports
     const reportData = {
-        submitted: 28,
-        underReview: 15,
-        approved: 42,
-        rejected: 7
+        submitted: {{ submitted_count }},
+        pending: {{ pending_count }},
+        approved: {{ approved_count }},
+        rejected: {{ rejected_count }}
     };
 
     // Update the count badges
     document.getElementById('submitted-count').textContent = reportData.submitted;
-    document.getElementById('review-count').textContent = reportData.underReview;
+    document.getElementById('review-count').textContent = reportData.pending;
     document.getElementById('approved-count').textContent = reportData.approved;
     document.getElementById('rejected-count').textContent = reportData.rejected;
-    document.getElementById('total-count').textContent =
-        reportData.submitted + reportData.underReview + reportData.approved + reportData.rejected;
 
     // Create the pie chart
     const ctx = document.getElementById('reportsPieChart').getContext('2d');
     const reportsPieChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: ['{% translate 'submitted' %}', '{% translate 'under_review' %}', '{% translate 'approved' %}', '{% translate 'rejected' %}'],
+            labels: ['{% translate 'submitted' %}', '{% translate 'pending' %}', '{% translate 'approved' %}', '{% translate 'rejected' %}'],
             datasets: [{
                 data: [
                     reportData.submitted,
-                    reportData.underReview,
+                    reportData.pending,
                     reportData.approved,
                     reportData.rejected
                 ],
                 backgroundColor: [
                     reportColors.submitted,  // Blue for Submitted
-                    reportColors.underReview,  // Yellow for Under Review
+                    reportColors.pending,  // Yellow for Under Review
                     reportColors.approved,  // Green for Approved
                     reportColors.rejected   // Red for Rejected
                 ],

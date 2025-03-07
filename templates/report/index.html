@@ -6,7 +6,7 @@
 <div class="container-fluid">
   <!-- Breadcrumbs and Title -->
   <div class="card bg-light-info shadow-none position-relative overflow-hidden mb-4">
-    <div class="card-body px-4 py-3">
+    <div class="card-body p-0 m-0">
       <div class="row align-items-center">
         <div class="col-9">
           <h4 class="fw-semibold mb-8">{% trans "reports" %}</h4>
@@ -49,10 +49,15 @@
       <div class="mb-4">
         <div class="d-flex gap-2 flex-wrap mb-3">
           <a href="?status=all" class="btn btn-{% if filter_status == 'all' or not filter_status %}primary{% else %}light{% endif %}">{% trans "all" %}</a>
+          {% if is_student %}
           <a href="?status=draft" class="btn btn-{% if filter_status == 'draft' %}primary{% else %}light{% endif %}">{% trans "draft" %}</a>
+          {% endif %}
           <a href="?status=pending" class="btn btn-{% if filter_status == 'pending' %}primary{% else %}light{% endif %}">{% trans "pending" %}</a>
           <a href="?status=submitted" class="btn btn-{% if filter_status == 'submitted' %}primary{% else %}light{% endif %}">{% trans "submitted" %}</a>
           <a href="?status=approved" class="btn btn-{% if filter_status == 'approved' %}primary{% else %}light{% endif %}">{% trans "approved" %}</a>
+          {% if not is_student %}
+          <a href="?status=rejected" class="btn btn-{% if filter_status == 'rejected' %}primary{% else %}light{% endif %}">{% trans "rejected" %}</a>
+          {% endif %}
         </div>
         
         <form method="get" class="mb-4">
@@ -86,80 +91,94 @@
         <div class="row reports-container">
           {% for report in reports %}
             <div class="col-12 mb-3">
-              <div class="card border-start border-4 border-top-0 border-end-0 border-bottom-0 {% if report.status == 'draft' %}border-secondary{% elif report.status == 'submitted' %}border-info{% elif report.status == 'approved' %}border-success{% elif report.status == 'rejected' %}border-danger{% else %}border-warning{% endif %}">
+              <div class="card border-start border-4 border-top-0 border-end-0 border-bottom-0 {% if report.status == 'draft' %}border-secondary{% elif report.status == 'submitted' %}border-info{% elif report.status == 'pending' %}border-warning{% elif report.status == 'approved' %}border-success{% elif report.status == 'rejected' %}border-danger{% else %}border-warning{% endif %}">
                 <div class="card-body p-3">
-                  <div class="d-flex align-items-center justify-content-between">
-                    <div>
+                  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
+                    <div class="flex-grow-1">
                       <h5 class="mb-1">{{ report.title }}</h5>
-                      <p class="mb-1 text-muted">{% if is_teacher or is_admin %}
-                        <strong>{% trans "student" %}:</strong> {{ report.student.profile.full_name|default:report.student.username }}
-                        {% else %}
-                        {{ report.id }}
-                        {% endif %}
-                      </p>
+                      <p class="mb-1 text-muted">{{ report.description|truncatechars:100 }}</p>
                       
-                      <p class="mb-0">
-                        <span class="text-muted"><i class="ti ti-calendar me-1"></i> {% trans "submitted" %}: {{ report.submitted_at|date:"M d, Y"|default:"-" }}</span>
-                        <span class="ms-3 text-muted"><i class="ti ti-file-text me-1"></i> {% trans "type" %}: {% trans report.report_type %}</span>
+                      {% if is_teacher or is_admin %}
+                      <p class="mb-1 text-muted">
+                        <strong>{% trans "student" %}:</strong> {{ report.student.profile.full_name|default:report.student.username }}
                       </p>
+                      {% endif %}
+                      
+                      <div class="d-flex flex-wrap gap-2 mt-2">
+                        <span class="text-muted"><i class="ti ti-calendar me-1"></i> {% trans "submitted" %}: {{ report.submitted_at|date:"M d, Y H:i"|default:"-" }}</span>
+                        <span class="text-muted"><i class="ti ti-file-text me-1"></i> {% trans "type" %}: {% trans report.report_type %}</span>
+                        {% if report.due_date %}
+                        <span class="text-muted {% if report.due_date < current_date %}text-danger{% endif %}">
+                          <i class="ti ti-alarm me-1"></i> {% trans "due_date" %}: {{ report.due_date|date:"M d, Y H:i" }}
+                          {% if report.due_date < current_date %}<strong>({% trans "expired" %})</strong>{% endif %}
+                        </span>
+                        {% endif %}
+                      </div>
                     </div>
                     
-                    <div class="d-flex flex-column align-items-end">
-                      <span class="badge bg-{% if report.status == 'draft' %}secondary{% elif report.status == 'submitted' %}info{% elif report.status == 'approved' %}success{% elif report.status == 'rejected' %}danger{% else %}warning{% endif %} mb-2">{% trans report.status %}</span>
+                    <div class="d-flex flex-column align-items-start align-items-md-end">
+                      <span class="badge bg-{% if report.status == 'draft' %}secondary{% elif report.status == 'submitted' %}info{% elif report.status == 'pending' %}warning{% elif report.status == 'approved' %}success{% elif report.status == 'rejected' %}danger{% else %}warning{% endif %} mb-2">{% trans report.status %}</span>
                       
-                      <div class="d-flex gap-2">
+                      <div class="d-flex flex-wrap gap-2">
                         <button type="button" class="btn btn-sm btn-outline-primary view-report-btn" data-bs-toggle="modal" data-bs-target="#viewReportModal" 
                           data-id="{{ report.id }}" 
                           data-title="{{ report.title }}" 
                           data-description="{{ report.description }}" 
                           data-type="{% trans report.report_type %}"
                           data-student="{{ report.student.profile.full_name|default:report.student.username }}"
-                          data-feedback="{{ report.feedback }}">
+                          data-feedback="{{ report.feedback|default:'-' }}"
+                          data-duedate="{{ report.due_date|date:'M d, Y H:i'|default:'-' }}"
+                          {% if report.reviewed_by %}
+                            data-reviewed-by="{{ report.reviewed_by.profile.full_name|default:report.reviewed_by.username }}"
+                          {% else %}
+                            data-reviewed-by="-"
+                          {% endif %}
+                          data-review-date="{{ report.review_date|date:'M d, Y H:i'|default:'-' }}">
                           <i class="ti ti-eye"></i> {% trans "view_details" %}
                         </button>
                         
-                        {% if is_student and report.status == 'draft' or report.status == 'rejected' %}
-                        <button type="button" class="btn btn-sm btn-outline-primary edit-report-btn" data-bs-toggle="modal" data-bs-target="#editReportModal" 
-                          data-id="{{ report.id }}" 
-                          data-title="{{ report.title }}" 
-                          data-description="{{ report.description }}" 
-                          data-type="{{ report.report_type }}"
-                          data-duedate="{{ report.due_date|date:'Y-m-d' }}">
-                          <i class="ti ti-edit"></i> {% trans "edit" %}
-                        </button>
+                        {% if report.file %}
+                        <a href="{{ report.file.url }}" class="btn btn-sm btn-outline-primary" download>
+                          <i class="ti ti-download me-1"></i> {% trans "download" %}
+                        </a>
                         {% endif %}
                         
-                        {% if is_teacher and report.status == 'submitted' %}
-                        <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#approveReportModal" data-id="{{ report.id }}">
-                          <i class="ti ti-check"></i> {% trans "approve" %}
-                        </button>
-                        <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#rejectReportModal" data-id="{{ report.id }}">
-                          <i class="ti ti-x"></i> {% trans "reject" %}
-                        </button>
-                        {% endif %}
-                        
-                        {% if is_admin %}
-                          {% if not report.assigned_to %}
-                          <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#assignReportModal" data-id="{{ report.id }}">
-                            <i class="ti ti-user"></i> {% trans "assign" %}
-                          </button>
-                          {% else %}
-                          <button type="button" class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#assignReportModal" data-id="{{ report.id }}">
-                            <i class="ti ti-refresh"></i> {% trans "reassign" %}
+                        {% if is_student and not is_admin and not is_teacher %}
+                          {% if report.status == 'draft' or report.status == 'submitted' %}
+                          <button type="button" class="btn btn-sm btn-outline-primary edit-report-btn" data-bs-toggle="modal" data-bs-target="#editReportModal" 
+                            data-id="{{ report.id }}" 
+                            data-title="{{ report.title }}" 
+                            data-description="{{ report.description }}" 
+                            data-type="{{ report.report_type }}"
+                            data-duedate="{{ report.due_date|date:'M d, Y H:i'|default:'-' }}">
+                            <i class="ti ti-edit"></i> {% trans "edit" %}
                           </button>
                           {% endif %}
                         {% endif %}
                         
+                        {% if is_teacher and not is_admin and not is_student %}
+                          {% if report.status == 'submitted' or report.status == 'pending' %}
+                          <div class="d-flex flex-wrap gap-2 mt-2 mt-md-0">
+                            <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#approveReportModal" data-id="{{ report.id }}">
+                              <i class="ti ti-check"></i> {% trans "approve" %}
+                            </button>
+                            <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#rejectReportModal" data-id="{{ report.id }}">
+                              <i class="ti ti-x"></i> {% trans "reject" %}
+                            </button>
+                          </div>
+                          {% endif %}
+                        {% endif %}
+                        
+                        {% if is_admin and not report.assigned_to %}
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#assignReportModal" data-id="{{ report.id }}">
+                          <i class="ti ti-user"></i> {% trans "assign" %}
+                        </button>
+                        {% endif %}
+                        
                         {% if is_student or is_admin %}
-                        {% trans "are_you_sure_you_want_to_delete_this_report" as delete_confirmation %}
-                        <form method="post" class="d-inline" onsubmit="return confirm('{{ delete_confirmation }}');">
-                          {% csrf_token %}
-                          <input type="hidden" name="action" value="delete_report">
-                          <input type="hidden" name="report_id" value="{{ report.id }}">
-                          <button type="submit" class="btn btn-sm btn-outline-danger">
-                            <i class="ti ti-trash"></i>
-                          </button>
-                        </form>
+                        <button type="button" class="btn btn-sm btn-outline-danger delete-report-btn" data-bs-toggle="modal" data-bs-target="#deleteReportModal" data-id="{{ report.id }}">
+                          <i class="ti ti-trash"></i>
+                        </button>
                         {% endif %}
                       </div>
                     </div>
@@ -239,8 +258,8 @@
 
 <!-- Add Report Modal (Student) -->
 {% if is_student %}
-<div class="modal fade" id="addReportModal" tabindex="-1" aria-labelledby="addReportModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
+<div class="modal fade" id="addReportModal" tabindex="-1" data-bs-backdrop="static" aria-labelledby="addReportModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
       <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
@@ -252,41 +271,70 @@
         </div>
         
         <div class="modal-body">
+          {% if form_errors and form_type == 'add_report' %}
+          <div class="alert alert-danger">
+            <h6 class="alert-heading">{% trans "please_fix_the_following_errors" %}:</h6>
+            <ul class="mb-0">
+              {% for field, errors in form_errors.items %}
+                {% for error in errors %}
+                <li>{{ field }}: {{ error }}</li>
+                {% endfor %}
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+          
           <div class="mb-3">
             <label for="id_title" class="form-label">{% trans "title" %} <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="id_title" name="title" required>
+            <input type="text" class="form-control {% if form_errors.title %}is-invalid{% endif %}" id="id_title" name="title" required value="{{ form_data.title|default:'' }}">
+            {% if form_errors.title %}
+            <div class="invalid-feedback">
+              {% for error in form_errors.title %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
           </div>
           
           <div class="mb-3">
             <label for="id_description" class="form-label">{% trans "description" %}</label>
-            <textarea class="form-control" id="id_description" name="description" rows="4"></textarea>
+            <textarea class="form-control {% if form_errors.description %}is-invalid{% endif %}" id="id_description" name="description" rows="4">{{ form_data.description|default:'' }}</textarea>
+            {% if form_errors.description %}
+            <div class="invalid-feedback">
+              {% for error in form_errors.description %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
           </div>
           
           <div class="mb-3">
             <label for="id_report_type" class="form-label">{% trans "report_type" %} <span class="text-danger">*</span></label>
-            <select class="form-select" id="id_report_type" name="report_type" required>
+            <select class="form-select {% if form_errors.report_type %}is-invalid{% endif %}" id="id_report_type" name="report_type" required>
               <option value="">{% trans "select_report_type" %}</option>
-              <option value="3-month">{% trans "3-month" %}</option>
-              <option value="6-month">{% trans "6-month" %}</option>
-              <option value="annual">{% trans "annual" %}</option>
-              <option value="other">{% trans "other" %}</option>
+              <option value="3-month" {% if form_data.report_type == '3-month' %}selected{% endif %}>{% trans "3-month" %}</option>
+              <option value="6-month" {% if form_data.report_type == '6-month' %}selected{% endif %}>{% trans "6-month" %}</option>
+              <option value="annual" {% if form_data.report_type == 'annual' %}selected{% endif %}>{% trans "annual" %}</option>
+              <option value="other" {% if form_data.report_type == 'other' %}selected{% endif %}>{% trans "other" %}</option>
             </select>
+            {% if form_errors.report_type %}
+            <div class="invalid-feedback">
+              {% for error in form_errors.report_type %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
           </div>
           
           <div class="mb-3">
             <label for="id_file" class="form-label">{% trans "report_file" %}</label>
-            <input type="file" class="form-control" id="id_file" name="file">
-          </div>
-          
-          <div class="mb-3">
-            <label for="id_due_date" class="form-label">{% trans "due_date" %}</label>
-            <input type="date" class="form-control" id="id_due_date" name="due_date">
+            <input type="file" class="form-control {% if form_errors.file %}is-invalid{% endif %}" id="id_file" name="file">
+            {% if form_errors.file %}
+            <div class="invalid-feedback">
+              {% for error in form_errors.file %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
           </div>
         </div>
         
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "cancel" %}</button>
-          <button type="submit" class="btn btn-primary">{% trans "save_report" %}</button>
+          <button type="submit" class="btn btn-outline-secondary" name="submit_type" value="draft">{% trans "save_as_draft" %}</button>
+          <button type="submit" class="btn btn-primary" name="submit_type" value="submit">{% trans "submit" %}</button>
         </div>
       </form>
     </div>
@@ -294,8 +342,8 @@
 </div>
 
 <!-- Edit Report Modal (Student) -->
-<div class="modal fade" id="editReportModal" tabindex="-1" aria-labelledby="editReportModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
+<div class="modal fade" id="editReportModal" tabindex="-1" data-bs-backdrop="static" aria-labelledby="editReportModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
       <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
@@ -308,42 +356,71 @@
         </div>
         
         <div class="modal-body">
+          {% if form_errors and form_type == 'update_report' %}
+          <div class="alert alert-danger">
+            <h6 class="alert-heading">{% trans "please_fix_the_following_errors" %}:</h6>
+            <ul class="mb-0">
+              {% for field, errors in form_errors.items %}
+                {% for error in errors %}
+                <li>{{ field }}: {{ error }}</li>
+                {% endfor %}
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+          
           <div class="mb-3">
             <label for="edit_title" class="form-label">{% trans "title" %} <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="edit_title" name="title" required>
+            <input type="text" class="form-control {% if form_errors.title %}is-invalid{% endif %}" id="edit_title" name="title" required>
+            {% if form_errors.title %}
+            <div class="invalid-feedback">
+              {% for error in form_errors.title %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
           </div>
           
           <div class="mb-3">
             <label for="edit_description" class="form-label">{% trans "description" %}</label>
-            <textarea class="form-control" id="edit_description" name="description" rows="4"></textarea>
+            <textarea class="form-control {% if form_errors.description %}is-invalid{% endif %}" id="edit_description" name="description" rows="4"></textarea>
+            {% if form_errors.description %}
+            <div class="invalid-feedback">
+              {% for error in form_errors.description %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
           </div>
           
           <div class="mb-3">
             <label for="edit_report_type" class="form-label">{% trans "report_type" %} <span class="text-danger">*</span></label>
-            <select class="form-select" id="edit_report_type" name="report_type" required>
+            <select class="form-select {% if form_errors.report_type %}is-invalid{% endif %}" id="edit_report_type" name="report_type" required>
               <option value="">{% trans "select_report_type" %}</option>
               <option value="3-month">{% trans "3-month" %}</option>
               <option value="6-month">{% trans "6-month" %}</option>
               <option value="annual">{% trans "annual" %}</option>
               <option value="other">{% trans "other" %}</option>
             </select>
+            {% if form_errors.report_type %}
+            <div class="invalid-feedback">
+              {% for error in form_errors.report_type %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
           </div>
           
           <div class="mb-3">
             <label for="edit_file" class="form-label">{% trans "report_file" %}</label>
-            <input type="file" class="form-control" id="edit_file" name="file">
+            <input type="file" class="form-control {% if form_errors.file %}is-invalid{% endif %}" id="edit_file" name="file">
             <small class="form-text text-muted">{% trans "leave_empty_to_keep_current_file" %}</small>
-          </div>
-          
-          <div class="mb-3">
-            <label for="edit_due_date" class="form-label">{% trans "due_date" %}</label>
-            <input type="date" class="form-control" id="edit_due_date" name="due_date">
+            {% if form_errors.file %}
+            <div class="invalid-feedback">
+              {% for error in form_errors.file %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
           </div>
         </div>
         
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "cancel" %}</button>
-          <button type="submit" class="btn btn-primary">{% trans "update_report" %}</button>
+          <button type="submit" class="btn btn-outline-secondary" name="submit_type" value="draft">{% trans "save_as_draft" %}</button>
+          <button type="submit" class="btn btn-primary" name="submit_type" value="submit">{% trans "save_and_submit" %}</button>
         </div>
       </form>
     </div>
@@ -353,7 +430,7 @@
 
 <!-- View Report Modal (All Users) -->
 <div class="modal fade" id="viewReportModal" tabindex="-1" aria-labelledby="viewReportModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="viewReportModalLabel">{% trans "view_report" %}</h5>
@@ -382,8 +459,23 @@
         </div>
         
         <div class="mb-3">
+          <label class="form-label fw-bold">{% trans "due_date" %}:</label>
+          <p id="view_due_date"></p>
+        </div>
+        
+        <div class="mb-3">
           <label class="form-label fw-bold">{% trans "feedback" %}:</label>
           <p id="view_feedback"></p>
+        </div>
+        
+        <div class="mb-3 reviewer-info" style="display: none;">
+          <label class="form-label fw-bold">{% trans "reviewed_by" %}:</label>
+          <p id="view_reviewed_by"></p>
+        </div>
+        
+        <div class="mb-3 reviewer-info" style="display: none;">
+          <label class="form-label fw-bold">{% trans "review_date" %}:</label>
+          <p id="view_review_date"></p>
         </div>
       </div>
       
@@ -396,8 +488,8 @@
 
 <!-- Approve Report Modal (Teacher) -->
 {% if is_teacher %}
-<div class="modal fade" id="approveReportModal" tabindex="-1" aria-labelledby="approveReportModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
+<div class="modal fade" id="approveReportModal" tabindex="-1" data-bs-backdrop="static" aria-labelledby="approveReportModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
       <form method="post">
         {% csrf_token %}
@@ -410,9 +502,27 @@
         </div>
         
         <div class="modal-body">
+          {% if form_errors and form_type == 'approve_report' %}
+          <div class="alert alert-danger">
+            <h6 class="alert-heading">{% trans "please_fix_the_following_errors" %}:</h6>
+            <ul class="mb-0">
+              {% for field, errors in form_errors.items %}
+                {% for error in errors %}
+                <li>{{ field }}: {{ error }}</li>
+                {% endfor %}
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+          
           <div class="mb-3">
             <label for="approve_feedback" class="form-label">{% trans "feedback" %}</label>
-            <textarea class="form-control" id="approve_feedback" name="feedback" rows="4" placeholder="{% trans 'provide_feedback_to_student' %}"></textarea>
+            <textarea class="form-control {% if form_errors.feedback %}is-invalid{% endif %}" id="approve_feedback" name="feedback" rows="4" placeholder="{% trans 'provide_feedback_to_student' %}">{{ form_data.feedback|default:'' }}</textarea>
+            {% if form_errors.feedback %}
+            <div class="invalid-feedback">
+              {% for error in form_errors.feedback %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
           </div>
         </div>
         
@@ -426,8 +536,8 @@
 </div>
 
 <!-- Reject Report Modal (Teacher) -->
-<div class="modal fade" id="rejectReportModal" tabindex="-1" aria-labelledby="rejectReportModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
+<div class="modal fade" id="rejectReportModal" tabindex="-1" data-bs-backdrop="static" aria-labelledby="rejectReportModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
       <form method="post">
         {% csrf_token %}
@@ -440,9 +550,27 @@
         </div>
         
         <div class="modal-body">
+          {% if form_errors and form_type == 'reject_report' %}
+          <div class="alert alert-danger">
+            <h6 class="alert-heading">{% trans "please_fix_the_following_errors" %}:</h6>
+            <ul class="mb-0">
+              {% for field, errors in form_errors.items %}
+                {% for error in errors %}
+                <li>{{ field }}: {{ error }}</li>
+                {% endfor %}
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+          
           <div class="mb-3">
             <label for="reject_feedback" class="form-label">{% trans "feedback" %} <span class="text-danger">*</span></label>
-            <textarea class="form-control" id="reject_feedback" name="feedback" rows="4" placeholder="{% trans 'explain_why_report_is_rejected' %}" required></textarea>
+            <textarea class="form-control {% if form_errors.feedback %}is-invalid{% endif %}" id="reject_feedback" name="feedback" rows="4" placeholder="{% trans 'explain_why_report_is_rejected' %}" required>{{ form_data.feedback|default:'' }}</textarea>
+            {% if form_errors.feedback %}
+            <div class="invalid-feedback">
+              {% for error in form_errors.feedback %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
           </div>
         </div>
         
@@ -472,14 +600,43 @@
         </div>
         
         <div class="modal-body">
+          {% if form_errors and form_type == 'assign_report' %}
+          <div class="alert alert-danger">
+            <h6 class="alert-heading">{% trans "please_fix_the_following_errors" %}:</h6>
+            <ul class="mb-0">
+              {% for field, errors in form_errors.items %}
+                {% for error in errors %}
+                <li>{{ field }}: {{ error }}</li>
+                {% endfor %}
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+          
           <div class="mb-3">
             <label for="assign_teacher" class="form-label">{% trans "select_teacher" %} <span class="text-danger">*</span></label>
-            <select class="form-select" id="assign_teacher" name="teacher_id" required>
+            <select class="form-select {% if form_errors.teacher_id %}is-invalid{% endif %}" id="assign_teacher" name="teacher_id" required>
               <option value="">{% trans "select_teacher" %}</option>
               {% for teacher in teachers %}
-              <option value="{{ teacher.id }}">{{ teacher.profile.full_name|default:teacher.username }}</option>
+              <option value="{{ teacher.id }}" {% if form_data.teacher_id == teacher.id|stringformat:"i" %}selected{% endif %}>{{ teacher.profile.full_name|default:teacher.username }}</option>
               {% endfor %}
             </select>
+            {% if form_errors.teacher_id %}
+            <div class="invalid-feedback">
+              {% for error in form_errors.teacher_id %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
+          </div>
+          
+          <div class="mb-3">
+            <label for="assign_due_date" class="form-label">{% trans "due_date" %} <span class="text-danger">*</span></label>
+            <input type="datetime-local" class="form-control {% if form_errors.due_date %}is-invalid{% endif %}" id="assign_due_date" name="due_date" required min="{{ current_date|date:'Y-m-d\TH:i' }}" value="{{ form_data.due_date|default:'' }}">
+            <small class="form-text text-muted">{% trans "teacher_must_review_by_due_date" %}</small>
+            {% if form_errors.due_date %}
+            <div class="invalid-feedback">
+              {% for error in form_errors.due_date %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
           </div>
         </div>
         
@@ -493,6 +650,34 @@
 </div>
 {% endif %}
 
+<!-- Delete Report Modal -->
+<div class="modal fade" id="deleteReportModal" tabindex="-1" data-bs-backdrop="static" aria-labelledby="deleteReportModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-filled bg-danger-subtle">
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="delete_report">
+        <input type="hidden" name="report_id" id="delete_report_id">
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteReportModalLabel">{% trans "delete_report" %}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        
+        <div class="modal-body">
+          <p>{% trans "are_you_sure_you_want_to_delete_this_report" %}</p>
+          <p class="text-danger">{% trans "this_action_cannot_be_undone" %}</p>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "cancel" %}</button>
+          <button type="submit" class="btn btn-danger">{% trans "delete" %}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 {% block extra_js %}
 <script>
   document.addEventListener('DOMContentLoaded', function() {
@@ -505,13 +690,11 @@
           const title = this.getAttribute('data-title');
           const description = this.getAttribute('data-description');
           const type = this.getAttribute('data-type');
-          const dueDate = this.getAttribute('data-duedate');
           
           document.getElementById('edit_report_id').value = reportId;
           document.getElementById('edit_title').value = title;
           document.getElementById('edit_description').value = description;
           document.getElementById('edit_report_type').value = type;
-          document.getElementById('edit_due_date').value = dueDate;
         });
       });
     }
@@ -526,12 +709,36 @@
           const type = this.getAttribute('data-type');
           const student = this.getAttribute('data-student');
           const feedback = this.getAttribute('data-feedback');
+          const dueDate = this.getAttribute('data-duedate');
+          const reviewedBy = this.getAttribute('data-reviewed-by');
+          const reviewDate = this.getAttribute('data-review-date');
           
           document.getElementById('view_title').textContent = title;
           document.getElementById('view_description').textContent = description || "-";
           document.getElementById('view_type').textContent = type;
           document.getElementById('view_student').textContent = student;
           document.getElementById('view_feedback').textContent = feedback || "-";
+          document.getElementById('view_due_date').textContent = dueDate || "-";
+          
+          // Show or hide reviewer information based on whether a review has occurred
+          const reviewedByElement = document.getElementById('view_reviewed_by');
+          const reviewDateElement = document.getElementById('view_review_date');
+          const reviewedBySection = reviewedByElement.parentElement;
+          const reviewDateSection = reviewDateElement.parentElement;
+          
+          if (reviewedBy && reviewedBy !== '-') {
+            reviewedByElement.textContent = reviewedBy;
+            reviewedBySection.style.display = 'block';
+          } else {
+            reviewedBySection.style.display = 'none';
+          }
+          
+          if (reviewDate && reviewDate !== '-') {
+            reviewDateElement.textContent = reviewDate;
+            reviewDateSection.style.display = 'block';
+          } else {
+            reviewDateSection.style.display = 'none';
+          }
         });
       });
     }
@@ -564,6 +771,17 @@
         button.addEventListener('click', function(e) {
           const reportId = this.getAttribute('data-id');
           document.getElementById('assign_report_id').value = reportId;
+        });
+      });
+    }
+    
+    // Delete report modal
+    const deleteButtons = document.querySelectorAll('.delete-report-btn');
+    if (deleteButtons) {
+      deleteButtons.forEach(function(button) {
+        button.addEventListener('click', function(e) {
+          const reportId = this.getAttribute('data-id');
+          document.getElementById('delete_report_id').value = reportId;
         });
       });
     }
