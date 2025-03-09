@@ -1,7 +1,774 @@
 {% extends "layouts/main.html" %}
 {% load static %}
 {% load i18n %}
+{% load custom_tags %}
 
 {% block content %}
+<div class="container-fluid">
+  <!-- Breadcrumbs and Title -->
+  <div class="card bg-light-info shadow-none position-relative overflow-hidden mb-4">
+    <div class="card-body p-0 m-0">
+      <div class="row align-items-center">
+        <div class="col-9">
+          <h4 class="fw-semibold mb-8">{% trans "help_center" %}</h4>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">{% trans "dashboard" %}</a></li>
+              <li class="breadcrumb-item active" aria-current="page">{% trans "help_center" %}</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
 
+  {% if messages %}
+  <div class="row">
+    <div class="col-12">
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags|message_tags }}" role="alert">
+        <div class="d-flex align-items-center  me-3 me-md-0">
+            <i class="ti ti-info-circle fs-5 me-2 flex-shrink-0 text-{{ message.tags|message_tags }}"></i>
+            {{ message }}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Main Content -->
+  <div class="card">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-semibold">{% trans "help_requests" %}</h4>
+        {% if not is_admin %}
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addHelpRequestModal">
+                <i class="ti ti-plus"></i> {% trans "new_help_request" %}
+            </button>
+        {% endif %}
+      </div>
+      
+      <!-- Filters -->
+      <div class="mb-4">
+        <div class="d-flex gap-2 flex-wrap mb-3">
+          <a href="?status=all" class="btn btn-{% if filter_status == 'all' or not filter_status %}primary{% else %}light{% endif %}">{% trans "all" %}</a>
+          <a href="?status=open" class="btn btn-{% if filter_status == 'open' %}primary{% else %}light{% endif %}">{% trans "open" %}</a>
+          <a href="?status=in_progress" class="btn btn-{% if filter_status == 'in_progress' %}primary{% else %}light{% endif %}">{% trans "in_progress" %}</a>
+          <a href="?status=resolved" class="btn btn-{% if filter_status == 'resolved' %}primary{% else %}light{% endif %}">{% trans "resolved" %}</a>
+          <a href="?status=closed" class="btn btn-{% if filter_status == 'closed' %}primary{% else %}light{% endif %}">{% trans "closed" %}</a>
+        </div>
+        
+        <form method="get" class="mb-4">
+          <div class="row g-2">
+            <div class="col-12 col-md-8">
+              <div class="input-group">
+                <input type="text" class="form-control" name="search" value="{{ search_query|default:'' }}" placeholder="{% trans 'search_help_requests' %}...">
+                <select class="form-select" name="search_field" style="max-width: 150px;">
+                  <option value="all" {% if search_field == 'all' %}selected{% endif %}>{% trans "all_fields" %}</option>
+                  <option value="subject" {% if search_field == 'subject' %}selected{% endif %}>{% trans "subject" %}</option>
+                  <option value="message" {% if search_field == 'message' %}selected{% endif %}>{% trans "message" %}</option>
+                  <option value="type" {% if search_field == 'type' %}selected{% endif %}>{% trans "type" %}</option>
+                  {% if is_admin %}
+                  <option value="user_name" {% if search_field == 'user_name' %}selected{% endif %}>{% trans "user_name" %}</option>
+                  {% endif %}
+                </select>
+                <button class="btn btn-primary" type="submit">
+                  <i class="ti ti-search"></i>
+                </button>
+                {% if search_query %}
+                <a href="?{% if filter_status %}status={{ filter_status }}{% endif %}" class="btn btn-danger">
+                  <i class="ti ti-x"></i>
+                </a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      
+      <!-- Help Requests Cards -->
+      {% if help_requests %}
+        <div class="row help-requests-container">
+          {% for help_request in help_requests %}
+            <div class="col-12 mb-3">
+              <div class="card border-start border-4 border-top-0 border-end-0 border-bottom-0 {% if help_request.status == 'open' %}border-info{% elif help_request.status == 'in_progress' %}border-warning{% elif help_request.status == 'resolved' %}border-success{% elif help_request.status == 'closed' %}border-secondary{% else %}border-info{% endif %}">
+                <div class="card-body p-3">
+                  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
+                    <div class="flex-grow-1">
+                      <h5 class="mb-1">{{ help_request.subject }}</h5>
+                      <p class="mb-1 text-muted">{{ help_request.message|truncatechars:100 }}</p>
+                      
+                      {% if is_admin %}
+                      <p class="mb-1 text-muted">
+                        <strong>{% trans "user" %}:</strong> {{ help_request.user.profile.full_name|default:help_request.user.username }}
+                      </p>
+                      {% endif %}
+                      
+                      <div class="d-flex flex-wrap gap-2 mt-2">
+                        <span class="text-muted"><i class="ti ti-calendar me-1"></i> {% trans "created" %}: {{ help_request.created_at|date:"M d, Y H:i" }}</span>
+                        <span class="text-muted"><i class="ti ti-tag me-1"></i> {% trans "type" %}: {% trans help_request.request_type %}</span>
+                        {% if help_request.response_date %}
+                        <span class="text-muted">
+                          <i class="ti ti-message-dots me-1"></i> {% trans "responded" %}: {{ help_request.response_date|date:"M d, Y H:i" }}
+                        </span>
+                        {% endif %}
+                      </div>
+                    </div>
+                    
+                    <div class="d-flex flex-column align-items-start align-items-md-end">
+                      <span class="badge bg-{% if help_request.status == 'open' %}info{% elif help_request.status == 'in_progress' %}warning{% elif help_request.status == 'resolved' %}success{% elif help_request.status == 'closed' %}secondary{% else %}info{% endif %} mb-2">{% trans help_request.status %}</span>
+                      
+                      <div class="d-flex flex-wrap gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-primary view-help-request-btn" data-bs-toggle="modal" data-bs-target="#viewHelpRequestModal" 
+                          data-id="{{ help_request.id }}" 
+                          data-subject="{{ help_request.subject }}" 
+                          data-message="{{ help_request.message }}" 
+                          data-type="{% trans help_request.request_type %}"
+                          data-user="{{ help_request.user.profile.full_name|default:help_request.user.username }}"
+                          data-response="{{ help_request.response|default:'-' }}"
+                          {% if help_request.responded_by %}
+                            data-responded-by="{{ help_request.responded_by.profile.full_name|default:help_request.responded_by.username }}"
+                          {% else %}
+                            data-responded-by="-"
+                          {% endif %}
+                          data-response-date="{{ help_request.response_date|date:'M d, Y H:i'|default:'-' }}"
+                          data-status="{{ help_request.status }}">
+                          <i class="ti ti-eye"></i> {% trans "view_details" %}
+                        </button>
+                        
+                        {% if help_request.attachment %}
+                        <a href="{{ help_request.attachment.url }}" class="btn btn-sm btn-outline-primary" download>
+                          <i class="ti ti-download me-1"></i> {% trans "download_attachment" %}
+                        </a>
+                        {% endif %}
+                        
+                        {% if help_request.user == user and help_request.status in 'open,in_progress' and not is_admin %}
+                        <button type="button" class="btn btn-sm btn-outline-primary edit-help-request-btn" data-bs-toggle="modal" data-bs-target="#editHelpRequestModal" 
+                          data-id="{{ help_request.id }}" 
+                          data-subject="{{ help_request.subject }}" 
+                          data-message="{{ help_request.message }}" 
+                          data-type="{{ help_request.request_type }}">
+                          <i class="ti ti-edit"></i> {% trans "edit" %}
+                        </button>
+                        {% endif %}
+                        
+                        {% if is_admin and help_request.status in 'open,in_progress' %}
+                        <button type="button" class="btn btn-sm btn-outline-primary respond-help-request-btn" data-bs-toggle="modal" data-bs-target="#respondHelpRequestModal" 
+                          data-id="{{ help_request.id }}"
+                          data-subject="{{ help_request.subject }}">
+                          <i class="ti ti-message-circle"></i> {% trans "respond" %}
+                        </button>
+                        {% endif %}
+                        
+                        {% if help_request.user == user or is_admin %}
+                        <button type="button" class="btn btn-sm btn-outline-danger delete-help-request-btn" data-bs-toggle="modal" data-bs-target="#deleteHelpRequestModal" data-id="{{ help_request.id }}">
+                          <i class="ti ti-trash"></i>
+                        </button>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if help_requests.has_other_pages %}
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center mt-4">
+            {% if help_requests.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page=1{% if filter_status %}&status={{ filter_status }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if search_field %}&search_field={{ search_field }}{% endif %}" aria-label="First">
+                <i class="ti ti-chevron-left"></i><i class="ti ti-chevron-left"></i>
+              </a>
+            </li>
+            <li class="page-item">
+              <a class="page-link" href="?page={{ help_requests.previous_page_number }}{% if filter_status %}&status={{ filter_status }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if search_field %}&search_field={{ search_field }}{% endif %}" aria-label="Previous">
+                <i class="ti ti-chevron-left"></i>
+              </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+              <span class="page-link"><i class="ti ti-chevron-left"></i><i class="ti ti-chevron-left"></i></span>
+            </li>
+            <li class="page-item disabled">
+              <span class="page-link"><i class="ti ti-chevron-left"></i></span>
+            </li>
+            {% endif %}
+            
+            {% for i in paginator_range %}
+              {% if i == help_requests.number %}
+              <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+              {% elif i == '...' %}
+              <li class="page-item disabled"><span class="page-link">{{ i }}</span></li>
+              {% else %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ i }}{% if filter_status %}&status={{ filter_status }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if search_field %}&search_field={{ search_field }}{% endif %}">{{ i }}</a>
+              </li>
+              {% endif %}
+            {% endfor %}
+            
+            {% if help_requests.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ help_requests.next_page_number }}{% if filter_status %}&status={{ filter_status }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if search_field %}&search_field={{ search_field }}{% endif %}" aria-label="Next">
+                <i class="ti ti-chevron-right"></i>
+              </a>
+            </li>
+            <li class="page-item">
+              <a class="page-link" href="?page={{ help_requests.paginator.num_pages }}{% if filter_status %}&status={{ filter_status }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if search_field %}&search_field={{ search_field }}{% endif %}" aria-label="Last">
+                <i class="ti ti-chevron-right"></i><i class="ti ti-chevron-right"></i>
+              </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+              <span class="page-link"><i class="ti ti-chevron-right"></i></span>
+            </li>
+            <li class="page-item disabled">
+              <span class="page-link"><i class="ti ti-chevron-right"></i><i class="ti ti-chevron-right"></i></span>
+            </li>
+            {% endif %}
+          </ul>
+        </nav>
+        {% endif %}
+      {% else %}
+        <div class="alert alert-info">
+          {% trans "no_help_requests_found" %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Add Help Request Modal -->
+{% if not is_admin %}
+<div class="modal fade" id="addHelpRequestModal" tabindex="-1" data-bs-backdrop="static" aria-labelledby="addHelpRequestModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="add_help_request">
+          
+          <div class="modal-header">
+            <h5 class="modal-title" id="addHelpRequestModalLabel">{% trans "new_help_request" %}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          
+          <div class="modal-body">
+            {% if form_errors and form_type == 'add_help_request' %}
+            <div class="alert alert-danger">
+              <h6 class="alert-heading">{% trans "please_fix_the_following_errors" %}:</h6>
+              <ul class="mb-0">
+                {% for field, errors in form_errors.items %}
+                  {% for error in errors %}
+                  <li>{{ field }}: {{ error }}</li>
+                  {% endfor %}
+                {% endfor %}
+              </ul>
+            </div>
+            {% endif %}
+            
+            <div class="mb-3">
+              <label for="id_subject" class="form-label">{% trans "subject" %} <span class="text-danger">*</span></label>
+              <input type="text" class="form-control {% if form_errors.subject %}is-invalid{% endif %}" id="id_subject" name="subject" required value="{{ form_data.subject|default:'' }}">
+              {% if form_errors.subject %}
+              <div class="invalid-feedback">
+                {% for error in form_errors.subject %}{{ error }}{% endfor %}
+              </div>
+              {% endif %}
+            </div>
+            
+            <div class="mb-3">
+              <label for="id_message" class="form-label">{% trans "message" %} <span class="text-danger">*</span></label>
+              <textarea class="form-control {% if form_errors.message %}is-invalid{% endif %}" id="id_message" name="message" rows="4" required>{{ form_data.message|default:'' }}</textarea>
+              {% if form_errors.message %}
+              <div class="invalid-feedback">
+                {% for error in form_errors.message %}{{ error }}{% endfor %}
+              </div>
+              {% endif %}
+            </div>
+            
+            <div class="mb-3">
+              <label for="id_request_type" class="form-label">{% trans "request_type" %} <span class="text-danger">*</span></label>
+              <select class="form-select {% if form_errors.request_type %}is-invalid{% endif %}" id="id_request_type" name="request_type" required>
+                <option value="">{% trans "select_request_type" %}</option>
+                <option value="bug" {% if form_data.request_type == 'bug' %}selected{% endif %}>{% trans "bug" %}</option>
+                <option value="feature" {% if form_data.request_type == 'feature' %}selected{% endif %}>{% trans "feature" %}</option>
+                <option value="help" {% if form_data.request_type == 'help' %}selected{% endif %}>{% trans "help" %}</option>
+                <option value="other" {% if form_data.request_type == 'other' %}selected{% endif %}>{% trans "other" %}</option>
+              </select>
+              {% if form_errors.request_type %}
+              <div class="invalid-feedback">
+                {% for error in form_errors.request_type %}{{ error }}{% endfor %}
+              </div>
+              {% endif %}
+            </div>
+            
+            <div class="mb-3">
+              <label for="id_attachment" class="form-label">{% trans "attachment" %}</label>
+              <input type="file" class="form-control {% if form_errors.attachment %}is-invalid{% endif %}" id="id_attachment" name="attachment" 
+                accept=".pdf,.doc,.docx,.txt,.rtf,.odt,.xls,.xlsx,.ods,.csv,.ppt,.pptx,.odp,.jpg,.jpeg,.png,.gif,.bmp,.tiff,.zip,.rar,.7z">
+              <div class="form-text">
+                <small class="text-muted">
+                  {% trans "supported_formats" %}: PDF, DOCX, XLSX, PPT, TXT, JPG, PNG, {% trans "etc" %}. 
+                  {% trans "max_size" %}: 100MB
+                </small>
+              </div>
+              {% if form_errors.attachment %}
+              <div class="invalid-feedback">
+                {% for error in form_errors.attachment %}{{ error }}{% endfor %}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+          
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "cancel" %}</button>
+            <button type="submit" class="btn btn-primary">{% trans "submit" %}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Edit Help Request Modal -->
+{% if not is_admin %}
+<div class="modal fade" id="editHelpRequestModal" tabindex="-1" data-bs-backdrop="static" aria-labelledby="editHelpRequestModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="update_help_request">
+        <input type="hidden" name="help_request_id" id="edit_help_request_id">
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="editHelpRequestModalLabel">{% trans "edit_help_request" %}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        
+        <div class="modal-body">
+          {% if form_errors and form_type == 'update_help_request' %}
+          <div class="alert alert-danger">
+            <h6 class="alert-heading">{% trans "please_fix_the_following_errors" %}:</h6>
+            <ul class="mb-0">
+              {% for field, errors in form_errors.items %}
+                {% for error in errors %}
+                <li>{{ field }}: {{ error }}</li>
+                {% endfor %}
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+          
+          <div class="mb-3">
+            <label for="edit_subject" class="form-label">{% trans "subject" %} <span class="text-danger">*</span></label>
+            <input type="text" class="form-control {% if form_errors.subject %}is-invalid{% endif %}" id="edit_subject" name="subject" required>
+            {% if form_errors.subject %}
+            <div class="invalid-feedback">
+              {% for error in form_errors.subject %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
+          </div>
+          
+          <div class="mb-3">
+            <label for="edit_message" class="form-label">{% trans "message" %} <span class="text-danger">*</span></label>
+            <textarea class="form-control {% if form_errors.message %}is-invalid{% endif %}" id="edit_message" name="message" rows="4" required></textarea>
+            {% if form_errors.message %}
+            <div class="invalid-feedback">
+              {% for error in form_errors.message %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
+          </div>
+          
+          <div class="mb-3">
+            <label for="edit_request_type" class="form-label">{% trans "request_type" %} <span class="text-danger">*</span></label>
+            <select class="form-select {% if form_errors.request_type %}is-invalid{% endif %}" id="edit_request_type" name="request_type" required>
+              <option value="">{% trans "select_request_type" %}</option>
+              <option value="bug">{% trans "bug" %}</option>
+              <option value="feature">{% trans "feature" %}</option>
+              <option value="help">{% trans "help" %}</option>
+              <option value="other">{% trans "other" %}</option>
+            </select>
+            {% if form_errors.request_type %}
+            <div class="invalid-feedback">
+              {% for error in form_errors.request_type %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
+          </div>
+          
+          <div class="mb-3">
+            <label for="edit_attachment" class="form-label">{% trans "attachment" %}</label>
+            <input type="file" class="form-control {% if form_errors.attachment %}is-invalid{% endif %}" id="edit_attachment" name="attachment"
+              accept=".pdf,.doc,.docx,.txt,.rtf,.odt,.xls,.xlsx,.ods,.csv,.ppt,.pptx,.odp,.jpg,.jpeg,.png,.gif,.bmp,.tiff,.zip,.rar,.7z">
+            <div class="form-text">
+              <small class="text-muted">
+                {% trans "leave_empty_to_keep_current_file" %} |
+                {% trans "supported_formats" %}: PDF, DOCX, XLSX, PPT, TXT, JPG, PNG, {% trans "etc" %}. 
+                {% trans "max_size" %}: 100MB
+              </small>
+            </div>
+            {% if form_errors.attachment %}
+            <div class="invalid-feedback">
+              {% for error in form_errors.attachment %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "cancel" %}</button>
+          <button type="submit" class="btn btn-primary">{% trans "save" %}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- View Help Request Modal (All Users) -->
+<div class="modal fade" id="viewHelpRequestModal" tabindex="-1" aria-labelledby="viewHelpRequestModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="viewHelpRequestModalLabel">{% trans "view_help_request" %}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label fw-bold">{% trans "user" %}:</label>
+          <p id="view_user"></p>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label fw-bold">{% trans "subject" %}:</label>
+          <p id="view_subject"></p>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label fw-bold">{% trans "type" %}:</label>
+          <p id="view_type"></p>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label fw-bold">{% trans "message" %}:</label>
+          <p id="view_message"></p>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label fw-bold">{% trans "status" %}:</label>
+          <p id="view_status"></p>
+        </div>
+        
+        <div class="mb-3 response-info">
+          <label class="form-label fw-bold">{% trans "response" %}:</label>
+          <p id="view_response"></p>
+        </div>
+        
+        <div class="mb-3 responder-info" style="display: none;">
+          <label class="form-label fw-bold">{% trans "responded_by" %}:</label>
+          <p id="view_responded_by"></p>
+        </div>
+        
+        <div class="mb-3 responder-info" style="display: none;">
+          <label class="form-label fw-bold">{% trans "response_date" %}:</label>
+          <p id="view_response_date"></p>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "close" %}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Respond to Help Request Modal (Admin only) -->
+{% if is_admin %}
+<div class="modal fade" id="respondHelpRequestModal" tabindex="-1" data-bs-backdrop="static" aria-labelledby="respondHelpRequestModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="respond_to_help_request">
+        <input type="hidden" name="help_request_id" id="respond_help_request_id">
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="respondHelpRequestModalLabel">{% trans "respond_to_help_request" %}: <span id="respond_subject"></span></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        
+        <div class="modal-body">
+          {% if form_errors and form_type == 'respond_to_help_request' %}
+          <div class="alert alert-danger">
+            <h6 class="alert-heading">{% trans "please_fix_the_following_errors" %}:</h6>
+            <ul class="mb-0">
+              {% for field, errors in form_errors.items %}
+                {% for error in errors %}
+                <li>{{ field }}: {{ error }}</li>
+                {% endfor %}
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+          
+          <div class="mb-3">
+            <label for="respond_response" class="form-label">{% trans "response" %} <span class="text-danger">*</span></label>
+            <textarea class="form-control {% if form_errors.response %}is-invalid{% endif %}" id="respond_response" name="response" rows="4" required>{{ form_data.response|default:'' }}</textarea>
+            {% if form_errors.response %}
+            <div class="invalid-feedback">
+              {% for error in form_errors.response %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
+          </div>
+          
+          <div class="mb-3">
+            <label for="respond_status" class="form-label">{% trans "update_status" %} <span class="text-danger">*</span></label>
+            <select class="form-select {% if form_errors.status %}is-invalid{% endif %}" id="respond_status" name="status" required>
+              <option value="in_progress" {% if form_data.status == 'in_progress' %}selected{% endif %}>{% trans "in_progress" %}</option>
+              <option value="resolved" {% if form_data.status == 'resolved' %}selected{% endif %}>{% trans "resolved" %}</option>
+              <option value="closed" {% if form_data.status == 'closed' %}selected{% endif %}>{% trans "closed" %}</option>
+            </select>
+            {% if form_errors.status %}
+            <div class="invalid-feedback">
+              {% for error in form_errors.status %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "cancel" %}</button>
+          <button type="submit" class="btn btn-primary">{% trans "send_response" %}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Delete Help Request Modal -->
+{% if is_admin or help_request.user == user %}
+<div class="modal fade" id="deleteHelpRequestModal" tabindex="-1" data-bs-backdrop="static" aria-labelledby="deleteHelpRequestModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-filled bg-danger-subtle">
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="delete_help_request">
+        <input type="hidden" name="help_request_id" id="delete_help_request_id">
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteHelpRequestModalLabel">{% trans "delete_help_request" %}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        
+        <div class="modal-body">
+          <p>{% trans "are_you_sure_you_want_to_delete_this_help_request" %}</p>
+          <p class="text-danger">{% trans "this_action_cannot_be_undone" %}</p>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "cancel" %}</button>
+          <button type="submit" class="btn btn-danger">{% trans "delete" %}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
 {% endblock content %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // File validation - shared between add and edit forms
+    const validateFile = (fileInput, errorContainer) => {
+      if (!fileInput.files || fileInput.files.length === 0) return true;
+      
+      const file = fileInput.files[0];
+      const maxSize = 100 * 1024 * 1024; // 100MB in bytes
+      const allowedExtensions = [
+        // Documents
+        'pdf', 'doc', 'docx', 'txt', 'rtf', 'odt',
+        // Spreadsheets
+        'xls', 'xlsx', 'ods', 'csv',
+        // Presentations
+        'ppt', 'pptx', 'odp',
+        // Images
+        'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff',
+        // Archives
+        'zip', 'rar', '7z'
+      ];
+      
+      // Check if file is empty
+      if (file.size === 0) {
+        errorContainer.textContent = "{% trans 'uploaded_file_is_empty_upload_valid_file' %}";
+        errorContainer.style.display = 'block';
+        return false;
+      }
+      
+      // Check file size
+      if (file.size > maxSize) {
+        errorContainer.textContent = "{% trans 'file_size_exceeds_limit_upload_smaller_file' %}";
+        errorContainer.style.display = 'block';
+        return false;
+      }
+      
+      // Check file extension
+      const fileName = file.name;
+      const fileExtension = fileName.split('.').pop().toLowerCase();
+      
+      if (!allowedExtensions.includes(fileExtension)) {
+        errorContainer.textContent = "{% trans 'this_file_type_is_not_allowed_extensions' %}" + 
+          allowedExtensions.map(ext => '.' + ext).join(', ');
+        errorContainer.style.display = 'block';
+        return false;
+      }
+      
+      // Clear any previous error
+      errorContainer.textContent = "";
+      errorContainer.style.display = 'none';
+      return true;
+    };
+    
+    // Set up file validation for add form
+    const addFileInput = document.getElementById('id_attachment');
+    if (addFileInput) {
+      // Create error container if not exists
+      let errorContainer = document.querySelector('#id_attachment + .invalid-feedback');
+      if (!errorContainer) {
+        errorContainer = document.createElement('div');
+        errorContainer.className = 'invalid-feedback';
+        errorContainer.style.display = 'none';
+        addFileInput.parentNode.insertBefore(errorContainer, addFileInput.nextSibling);
+      }
+      
+      addFileInput.addEventListener('change', function() {
+        validateFile(this, errorContainer);
+      });
+      
+      // Validate form on submit
+      const addForm = addFileInput.closest('form');
+      if (addForm) {
+        addForm.addEventListener('submit', function(e) {
+          if (!validateFile(addFileInput, errorContainer)) {
+            e.preventDefault();
+            addFileInput.classList.add('is-invalid');
+          }
+        });
+      }
+    }
+    
+    // Set up file validation for edit form
+    const editFileInput = document.getElementById('edit_attachment');
+    if (editFileInput) {
+      // Create error container if not exists
+      let errorContainer = document.querySelector('#edit_attachment + .invalid-feedback');
+      if (!errorContainer) {
+        errorContainer = document.createElement('div');
+        errorContainer.className = 'invalid-feedback';
+        errorContainer.style.display = 'none';
+        editFileInput.parentNode.insertBefore(errorContainer, editFileInput.nextSibling);
+      }
+      
+      editFileInput.addEventListener('change', function() {
+        validateFile(this, errorContainer);
+      });
+      
+      // Validate form on submit
+      const editForm = editFileInput.closest('form');
+      if (editForm) {
+        editForm.addEventListener('submit', function(e) {
+          if (editFileInput.files.length > 0 && !validateFile(editFileInput, errorContainer)) {
+            e.preventDefault();
+            editFileInput.classList.add('is-invalid');
+          }
+        });
+      }
+    }
+  
+    // Edit help request modal
+    const editButtons = document.querySelectorAll('.edit-help-request-btn');
+    if (editButtons) {
+      editButtons.forEach(function(button) {
+        button.addEventListener('click', function(e) {
+          const helpRequestId = this.getAttribute('data-id');
+          const subject = this.getAttribute('data-subject');
+          const message = this.getAttribute('data-message');
+          const type = this.getAttribute('data-type');
+          
+          document.getElementById('edit_help_request_id').value = helpRequestId;
+          document.getElementById('edit_subject').value = subject;
+          document.getElementById('edit_message').value = message;
+          document.getElementById('edit_request_type').value = type;
+        });
+      });
+    }
+    
+    // View help request modal
+    const viewButtons = document.querySelectorAll('.view-help-request-btn');
+    if (viewButtons) {
+      viewButtons.forEach(function(button) {
+        button.addEventListener('click', function(e) {
+          const subject = this.getAttribute('data-subject');
+          const message = this.getAttribute('data-message');
+          const type = this.getAttribute('data-type');
+          const user = this.getAttribute('data-user');
+          const response = this.getAttribute('data-response');
+          const respondedBy = this.getAttribute('data-responded-by');
+          const responseDate = this.getAttribute('data-response-date');
+          const status = this.getAttribute('data-status');
+          
+          document.getElementById('view_subject').textContent = subject;
+          document.getElementById('view_message').textContent = message || "-";
+          document.getElementById('view_type').textContent = type;
+          document.getElementById('view_user').textContent = user;
+          document.getElementById('view_response').textContent = response || "-";
+          document.getElementById('view_status').textContent = status;
+          
+          // Show or hide responder information based on whether a response has occurred
+          const respondedByElement = document.getElementById('view_responded_by');
+          const responseDateElement = document.getElementById('view_response_date');
+          const responderInfoSections = document.querySelectorAll('.responder-info');
+          
+          if (respondedBy && respondedBy !== '-') {
+            respondedByElement.textContent = respondedBy;
+            responseDateElement.textContent = responseDate;
+            responderInfoSections.forEach(section => section.style.display = 'block');
+          } else {
+            responderInfoSections.forEach(section => section.style.display = 'none');
+          }
+        });
+      });
+    }
+    
+    // Respond to help request modal
+    const respondButtons = document.querySelectorAll('.respond-help-request-btn');
+    if (respondButtons) {
+      respondButtons.forEach(function(button) {
+        button.addEventListener('click', function(e) {
+          const helpRequestId = this.getAttribute('data-id');
+          const subject = this.getAttribute('data-subject');
+          
+          document.getElementById('respond_help_request_id').value = helpRequestId;
+          document.getElementById('respond_subject').textContent = subject;
+        });
+      });
+    }
+    
+    // Delete help request modal
+    const deleteButtons = document.querySelectorAll('.delete-help-request-btn');
+    if (deleteButtons) {
+      deleteButtons.forEach(function(button) {
+        button.addEventListener('click', function(e) {
+          const helpRequestId = this.getAttribute('data-id');
+          document.getElementById('delete_help_request_id').value = helpRequestId;
+        });
+      });
+    }
+  });
+</script>
+{% endblock %}

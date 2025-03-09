@@ -130,7 +130,7 @@ class Profile(models.Model):
         upload_to=profile_picture_path,
         blank=True,
         null=True,
-        default=os.path.join("Profile", "_Default", "default.png"),
+        default=os.path.join("Profile", "_Default", "default.jpg"),
     )
     birth_date = models.DateField(blank=True, null=True)
     gender = models.CharField(
@@ -141,6 +141,8 @@ class Profile(models.Model):
     passport_number = models.CharField(
         max_length=9, blank=True, null=True, validators=[PassportNumberValidator]
     )
+    phone_number = models.CharField(max_length=255, blank=True, null=True)
+    email = models.EmailField(max_length=255, blank=True, null=True)
 
 
 class EducationProfile(models.Model):
@@ -214,10 +216,11 @@ class Dissertation(models.Model):
     dissertation_file = models.FileField(upload_to=dissertation_path, blank=True, null=True)
 
 class NextEducationMajor(models.Model):
+    number = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
 
     def __str__(self):
-        return self.name
+        return f"{self.number} - {self.name}"
 
 
 class Report(models.Model):

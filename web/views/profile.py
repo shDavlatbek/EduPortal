@@ -8,7 +8,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from web.models import Profile, EducationProfile, Article, LanguageCertificate, NextEducationMajor, Dissertation
 from django.forms import modelform_factory
-
+from django.utils.translation import gettext as _
 TEMPLATE_DIR = 'profile'
 
 @login_required
@@ -39,6 +39,10 @@ def profile(request):
     # Initialize password form
     password_form = PasswordChangeForm(user=user)
     
+    # Initialize form errors and data
+    form_errors = {}
+    form_data = {}
+    
     # Form handling
     if request.method == 'POST':
         form_type = request.POST.get('form_type')
@@ -47,18 +51,25 @@ def profile(request):
         if request.POST.get('active_tab'):
             active_tab = request.POST.get('active_tab')
         
+        # Store form data for re-populating forms in case of errors
+        form_data = request.POST.dict()
+        
         # Handle profile form
         if form_type == 'profile':
             ProfileForm = modelform_factory(
                 Profile, 
                 fields=['full_name', 'picture', 'birth_date', 'gender', 
-                       'birth_place', 'living_place', 'passport_number']
+                       'birth_place', 'living_place', 'passport_number',
+                       'phone_number', 'email']
             )
             form = ProfileForm(request.POST, request.FILES, instance=profile_instance)
             if form.is_valid():
                 form.save()
-                messages.success(request, 'Profile updated successfully')
+                messages.success(request, _('profile_updated_successfully'))
                 return redirect(f"{reverse('profile')}?tab={active_tab}")
+            else:
+                form_errors = form.errors
+                messages.error(request, _('please_fix_the_errors_in_the_form'))
         
         # Handle education profile form
         elif form_type == 'education':
@@ -75,8 +86,11 @@ def profile(request):
             form = EducationForm(request.POST, instance=education_profile)
             if form.is_valid():
                 form.save()
-                messages.success(request, 'Education profile updated successfully')
+                messages.success(request, _('education_profile_updated_successfully'))
                 return redirect(f"{reverse('profile')}?tab={active_tab}")
+            else:
+                form_errors = form.errors
+                messages.error(request, _('please_fix_the_errors_in_the_form'))
             
         # Handle language certificate form
         elif form_type == 'certificate_add':
@@ -89,8 +103,11 @@ def profile(request):
                 certificate = form.save(commit=False)
                 certificate.user = user
                 certificate.save()
-                messages.success(request, 'Certificate added successfully')
+                messages.success(request, _('certificate_added_successfully'))
                 return redirect(f"{reverse('profile')}?tab={active_tab}")
+            else:
+                form_errors = form.errors
+                messages.error(request, _('please_fix_the_errors_in_the_form'))
                 
         # Handle article form
         elif form_type == 'article_add':
@@ -103,8 +120,11 @@ def profile(request):
                 article = form.save(commit=False)
                 article.user = user
                 article.save()
-                messages.success(request, 'Article added successfully')
+                messages.success(request, _('article_added_successfully'))
                 return redirect(f"{reverse('profile')}?tab={active_tab}")
+            else:
+                form_errors = form.errors
+                messages.error(request, _('please_fix_the_errors_in_the_form'))
         
         # Handle dissertation form
         elif form_type == 'dissertation':
@@ -115,8 +135,11 @@ def profile(request):
             form = DissertationForm(request.POST, request.FILES, instance=dissertation)
             if form.is_valid():
                 form.save()
-                messages.success(request, 'Dissertation updated successfully')
+                messages.success(request, _('dissertation_updated_successfully'))
                 return redirect(f"{reverse('profile')}?tab={active_tab}")
+            else:
+                form_errors = form.errors
+                messages.error(request, _('please_fix_the_errors_in_the_form'))
         
         # Handle password change form
         elif form_type == 'password':
@@ -125,10 +148,12 @@ def profile(request):
                 password_form.save()
                 # Update the session to prevent the user from being logged out
                 update_session_auth_hash(request, user)
-                messages.success(request, 'Your password was successfully updated!')
+                messages.success(request, _('your_password_was_successfully_updated'))
                 return redirect(f"{reverse('profile')}?tab={active_tab}")
             else:
-                # If form is invalid, we'll display the errors in the template
+                # If form is invalid, we'll use the errors from the password form
+                form_errors = password_form.errors
+                messages.error(request, _('please_fix_the_errors_in_the_form'))
                 active_tab = 'password'
                 
         # Handle certificate deletion
@@ -137,9 +162,9 @@ def profile(request):
             try:
                 certificate = LanguageCertificate.objects.get(id=certificate_id, user=user)
                 certificate.delete()
-                messages.success(request, 'Certificate deleted successfully')
+                messages.success(request, _('certificate_deleted_successfully'))
             except LanguageCertificate.DoesNotExist:
-                messages.error(request, 'Certificate not found')
+                messages.error(request, _('certificate_not_found'))
             return redirect(f"{reverse('profile')}?tab={active_tab}")
             
         # Handle article deletion
@@ -148,9 +173,9 @@ def profile(request):
             try:
                 article = Article.objects.get(id=article_id, user=user)
                 article.delete()
-                messages.success(request, 'Article deleted successfully')
+                messages.success(request, _('article_deleted_successfully'))
             except Article.DoesNotExist:
-                messages.error(request, 'Article not found')
+                messages.error(request, _('article_not_found'))
             return redirect(f"{reverse('profile')}?tab={active_tab}")
     
     context = {
@@ -163,6 +188,8 @@ def profile(request):
         'active_tab': active_tab,
         'password_form': password_form,
         'role': request.user.groups.first().name,
+        'form_errors': form_errors,
+        'form_data': form_data,
     }
     
     return render(request, os.path.join(TEMPLATE_DIR, 'index.html'), context)

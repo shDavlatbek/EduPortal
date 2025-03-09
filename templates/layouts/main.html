@@ -48,6 +48,42 @@
             </a>
           </li>
 
+          {% if request.user.groups.first.name == 'admin_group' or request.user.groups.first.name == 'superadmin_group' %}
+          <li
+            class="sidebar-item mb-3"
+            data-bs-toggle="popover"
+            data-bs-trigger="hover"
+            data-bs-content="{% translate 'users' %}"
+            data-bs-placement="right"
+            data-bs-delay="0"
+            data-bs-responsive="(>sm<xl)"
+          >
+            <a class="sidebar-link {% if request.resolver_match.url_name == 'user' %}bg-white text-dark{% else %}text-white{% endif %}" href="{% url 'user' %}" aria-expanded="false">
+              <span>
+                <i class="ti ti-school fs-10"></i>
+              </span>
+              <span class="d-block d-sm-none d-xl-block fs-5 w-100 text-center">{% translate "students" %}</span>
+            </a>
+          </li>
+
+          <li
+            class="sidebar-item mb-3"
+            data-bs-toggle="popover"
+            data-bs-trigger="hover"
+            data-bs-content="{% translate 'teachers' %}"
+            data-bs-placement="right"
+            data-bs-delay="0"
+            data-bs-responsive="(>sm<xl)"
+          >
+            <a class="sidebar-link {% if request.resolver_match.url_name == 'teacher' %}bg-white text-dark{% else %}text-white{% endif %}" href="{% url 'teacher' %}" aria-expanded="false">
+              <span>
+                <i class="ti ti-users-group fs-10"></i>
+              </span>
+              <span class="d-block d-sm-none d-xl-block fs-5 w-100 text-center">{% translate "teachers" %}</span>
+            </a>
+          </li>
+          {% endif %}
+
           <li
             class="sidebar-item mb-3"
             data-bs-toggle="popover"

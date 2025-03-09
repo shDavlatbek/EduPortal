@@ -1,0 +1,671 @@
+{% extends 'layouts/main.html' %}
+{% load i18n %}
+{% load static %}
+{% load custom_tags %}
+
+{% block content %}
+<!-- Breadcrumbs and Title -->
+<div class="card bg-light-info shadow-none position-relative overflow-hidden mb-4">
+  <div class="card-body p-0 m-0">
+    <div class="row align-items-center">
+      <div class="col-9">
+        <h4 class="fw-semibold mb-8">{% trans "teachers_management" %}</h4>
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">{% trans "dashboard" %}</a></li>
+            <li class="breadcrumb-item {% if not teacher_detail %}active{% endif %}" aria-current="page">{% if not teacher_detail %}{% trans "teachers" %}{% else %}<a href="{% url 'teacher' %}">{% trans "teachers" %}</a>{% endif %}</li>
+            <li class="breadcrumb-item {% if teacher_detail %}active{% endif %}" aria-current="page">{% trans "teacher_details" %}</li>
+          </ol>
+        </nav>
+      </div>
+      <div class="col-3 text-end">
+        {% if not teacher_detail %}
+          <button type="button" class="btn btn-primary d-flex align-items-center ms-auto" data-bs-toggle="modal" data-bs-target="#addTeacherModal">
+            <i class="ti ti-user-plus me-1"></i> {% trans "add_teacher" %}
+          </button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if messages %}
+<div class="row mb-4">
+  <div class="col-12">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags|message_tags }}" role="alert">
+      <div class="d-flex align-items-center">
+        <i class="ti ti-info-circle fs-5 me-2 flex-shrink-0 text-{{ message.tags|message_tags }}"></i>
+        {{ message }}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% if not teacher_detail %}
+<div class="card">
+  <div class="card-body">
+    <div class="d-flex flex-column flex-md-row align-items-center justify-content-between mb-4">
+      <h5 class="card-title fw-semibold mb-0">{% trans "Teachers List" %}</h5>
+      <div class="d-flex gap-2 mt-lg-0 mt-3">
+        <button type="button" class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+          <i class="ti ti-filter me-1"></i> {% trans "filters" %}
+          {% if is_filtered %}
+          <span class="badge bg-primary rounded-pill ms-1 px-2" style="font-size: 0.6em;">{{ filter_count }}</span>
+          {% endif %}
+        </button>
+        <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#exportModal">
+          <i class="ti ti-file-export me-1"></i> {% trans "export" %}
+        </button>
+        <form method="get" action="" class="d-flex">
+          <div class="input-group">
+            <input class="form-control" type="search" name="search" placeholder="{% trans 'Search by name...' %}" value="{{ search_query }}" aria-label="Search">
+            <button class="btn btn-primary" type="submit">
+              <i class="ti ti-search"></i>
+            </button>
+            {% if search_query or is_filtered %}
+              <a href="{% url 'teacher' %}" class="btn btn-outline-secondary px-2 px-lg-3">
+                <i class="ti ti-x"></i>
+              </a>
+            {% endif %}
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Filters Collapse -->
+    <div class="collapse mb-4 {% if is_filtered %}show{% endif %}" id="filterCollapse">
+      <div class="card card-body bg-light-secondary border">
+        <form method="get" action="" id="filterForm">
+          {% if search_query %}
+          <input type="hidden" name="search" value="{{ search_query }}">
+          {% endif %}
+          
+          <div class="row g-3">
+            <!-- Gender Filter -->
+            <div class="col-lg-4">
+              <label for="filter_gender" class="form-label">{% trans "gender" %}</label>
+              <select class="form-select" id="filter_gender" name="gender" onchange="document.getElementById('filterForm').submit()">
+                <option value="">{% trans "all" %}</option>
+                <option value="male" {% if filter_gender == 'male' %}selected{% endif %}>{% trans "male" %}</option>
+                <option value="female" {% if filter_gender == 'female' %}selected{% endif %}>{% trans "female" %}</option>
+              </select>
+            </div>
+            
+            <!-- Buttons -->
+            <div class="col-12 d-flex justify-content-end mt-3">
+              <a href="{% url 'teacher' %}" class="btn btn-outline-secondary me-2">
+                <i class="ti ti-refresh me-1"></i> {% trans "reset_filters" %}
+              </a>
+              <button type="submit" class="btn btn-primary">
+                <i class="ti ti-filter me-1"></i> {% trans "apply_filters" %}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    {% if teachers %}
+      <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 row-cols-xxl-4 g-4">
+        {% for teacher in teachers %}
+        <div class="col">
+          <div class="card h-100 shadow-sm hover-shadow">
+            <div class="card-header bg-transparent d-flex align-items-center p-3 border-bottom">
+              <div class="flex-shrink-0">
+                <a href="{% url 'teacher' %}?teacher_id={{ teacher.username }}" class="text-decoration-none">
+                  <img src="{{ teacher.profile.picture.url|default:'/media/Profile/_Default/default.jpg' }}" alt="Profile Picture" class="rounded-circle" style="width: 60px; height: 60px; object-fit: cover;">
+                </a>
+              </div>
+              <div class="ms-3 flex-grow-1 overflow-hidden">
+                <a href="{% url 'teacher' %}?teacher_id={{ teacher.username }}" class="text-decoration-none">
+                  <h5 class="card-title mb-0 text-truncate fw-semibold">{{ teacher.profile.full_name|default:teacher.username }}</h5>
+                  <small class="text-muted text-truncate d-block">@{{ teacher.username }}</small>
+                </a>
+              </div>
+            </div>
+            <div class="card-body py-3 d-flex flex-column justify-content-between">
+              <div class="mb-2">
+                <h6 class="card-subtitle mb-2 d-flex align-items-center">
+                  <i class="ti ti-mail text-primary me-2"></i>{% trans "email" %}
+                </h6>
+                {% if teacher.profile.email %}
+                  <p class="mb-0 ps-4 text-truncate">{{ teacher.profile.email }}</p>
+                {% else %}
+                  <p class="text-muted mb-0 ps-4">{% trans "Not specified" %}</p>
+                {% endif %}
+              </div>
+              <div class="">
+                <h6 class="card-subtitle mb-2 d-flex align-items-center">
+                  <i class="ti ti-phone text-primary me-2"></i>{% trans "phone" %}
+                </h6>
+                {% if teacher.profile.phone_number %}
+                  <p class="mb-0 ps-4 text-truncate">{{ teacher.profile.phone_number }}</p>
+                {% else %}
+                  <p class="text-muted mb-0 ps-4">{% trans "Not specified" %}</p>
+                {% endif %}
+              </div>
+            </div>
+            <div class="card-footer bg-transparent py-3 d-flex justify-content-between">
+              <a href="{% url 'teacher' %}?teacher_id={{ teacher.username }}" class="btn btn-sm btn-outline-primary">
+                <i class="ti ti-eye me-1"></i> {% trans "view" %}
+              </a>
+              <a href="#" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteTeacherModal{{ teacher.id }}">
+                <i class="ti ti-trash me-1"></i> {% trans "delete" %}
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Delete Teacher Modal -->
+        <div class="modal fade" id="deleteTeacherModal{{ teacher.id }}" tabindex="-1" aria-labelledby="deleteTeacherModalLabel{{ teacher.id }}" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+              <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteTeacherModalLabel{{ teacher.id }}">{% trans "delete_teacher" %}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <div class="text-center mb-3">
+                  <i class="ti ti-alert-triangle text-danger" style="font-size: 4rem;"></i>
+                </div>
+                <p class="text-center fs-5">{% trans "are_you_sure_you_want_to_delete_this_teacher" %}?</p>
+                <p class="text-center fw-bold">{{ teacher.profile.full_name|default:teacher.username }}</p>
+                <p class="text-center text-muted small">{% trans "this_action_cannot_be_undone" %}</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "cancel" %}</button>
+                <form method="post">
+                  {% csrf_token %}
+                  <input type="hidden" name="form_type" value="teacher_delete">
+                  <input type="hidden" name="teacher_id" value="{{ teacher.id }}">
+                  <button type="submit" class="btn btn-danger">
+                    <i class="ti ti-trash me-1"></i> {% trans "delete_teacher" %}
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Pagination -->
+      {% if teachers.paginator.num_pages > 1 %}
+      <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+          {% if teachers.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="First">
+                <i class="ti ti-chevrons-left"></i>
+              </a>
+            </li>
+            <li class="page-item">
+              <a class="page-link" href="?page={{ teachers.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Previous">
+                <i class="ti ti-chevron-left"></i>
+              </a>
+            </li>
+          {% else %}
+            <li class="page-item disabled">
+              <a class="page-link" href="#" tabindex="-1" aria-disabled="true"><i class="ti ti-chevrons-left"></i></a>
+            </li>
+            <li class="page-item disabled">
+              <a class="page-link" href="#" tabindex="-1" aria-disabled="true"><i class="ti ti-chevron-left"></i></a>
+            </li>
+          {% endif %}
+          
+          {% for page_num in teachers.paginator.page_range %}
+            {% if teachers.number == page_num %}
+              <li class="page-item active"><a class="page-link" href="#">{{ page_num }}</a></li>
+            {% elif page_num > teachers.number|add:'-3' and page_num < teachers.number|add:'3' %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_num }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ page_num }}</a>
+              </li>
+            {% endif %}
+          {% endfor %}
+          
+          {% if teachers.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ teachers.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Next">
+                <i class="ti ti-chevron-right"></i>
+              </a>
+            </li>
+            <li class="page-item">
+              <a class="page-link" href="?page={{ teachers.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Last">
+                <i class="ti ti-chevrons-right"></i>
+              </a>
+            </li>
+          {% else %}
+            <li class="page-item disabled">
+              <a class="page-link" href="#" tabindex="-1" aria-disabled="true"><i class="ti ti-chevron-right"></i></a>
+            </li>
+            <li class="page-item disabled">
+              <a class="page-link" href="#" tabindex="-1" aria-disabled="true"><i class="ti ti-chevrons-right"></i></a>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+      {% endif %}
+    {% else %}
+      <div class="alert alert-info d-flex align-items-center">
+        <i class="ti ti-alert-circle fs-5 me-2"></i>
+        {% if search_query %}
+          {% trans "No teachers found matching your search." %}
+        {% else %}
+          {% trans "No teachers available." %}
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+{% if teacher_detail %}
+<!-- Single Teacher View -->
+<div class="card">
+  <div class="card-body">
+    <!-- Teacher profile picture and basic info -->
+    <div class="text-center mb-4">
+      <div class="position-relative d-inline-block">
+        <img src="{{ teacher_detail.profile.picture.url|default:'/media/Profile/_Default/default.jpg' }}" class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+        {% if edit_mode %}
+        <label for="picture" class="position-absolute bottom-0 end-0 btn btn-sm btn-primary rounded-circle" style="margin-right: 20px;">
+          <i class="ti ti-camera"></i>
+          <input type="file" id="picture" name="picture" class="d-none" form="teacherEditForm">
+        </label>
+        {% endif %}
+      </div>
+      <h4 class="fw-semibold">{{ teacher_detail.profile.full_name|default:teacher_detail.username }}</h4>
+      <p class="text-muted">@{{ teacher_detail.username }}</p>
+      
+      <!-- Password restore button -->
+      <div class="mt-2">
+        <button type="button" class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#restorePasswordModal">
+          <i class="ti ti-key me-1"></i> {% trans "restore_password" %}
+        </button>
+      </div>
+    </div>
+
+    <!-- Tabs for different sections -->
+    <div class="card">
+      <div class="card-body">
+        <ul class="nav nav-tabs justify-content-center justify-content-xl-start" id="teacherTabs" role="tablist">
+          <li class="nav-item">
+            <a class="nav-link active" id="personal-tab" data-bs-toggle="tab" href="#personal" role="tab" aria-controls="personal" aria-selected="true">{% trans "personal_information" %}</a>
+          </li>
+        </ul>
+
+        <form id="teacherEditForm" action="{% url 'teacher' %}" method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="teacher_id" value="{{ teacher_detail.id }}">
+          <input type="hidden" name="action" value="update">
+
+          <div class="tab-content mt-4" id="teacherTabsContent">
+            <!-- Personal Information Tab -->
+            <div class="tab-pane fade show active" id="personal" role="tabpanel" aria-labelledby="personal-tab">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title mb-4">{% trans "personal_details" %}</h5>
+                  
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="username" class="form-label">{% trans "username" %}</label>
+                      {% if edit_mode %}
+                        <input type="text" class="form-control" id="username" name="username" value="{{ teacher_detail.username }}" disabled>
+                        <small class="text-muted">{% trans "username_cannot_be_changed" %}</small>
+                      {% else %}
+                        <p class="form-control-plaintext">{{ teacher_detail.username }}</p>
+                      {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="full_name" class="form-label">{% trans "full_name" %}</label>
+                      {% if edit_mode %}
+                        <input type="text" class="form-control" id="full_name" name="full_name" value="{{ teacher_detail.profile.full_name|default:'' }}">
+                      {% else %}
+                        <p class="form-control-plaintext">{{ teacher_detail.profile.full_name|default:'-' }}</p>
+                      {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="email" class="form-label">{% trans "email" %}</label>
+                      {% if edit_mode %}
+                        <input type="email" class="form-control" id="email" name="email" value="{{ teacher_detail.profile.email|default:'' }}">
+                      {% else %}
+                        <p class="form-control-plaintext">{{ teacher_detail.profile.email|default:'-' }}</p>
+                      {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="phone_number" class="form-label">{% trans "phone_number" %}</label>
+                      {% if edit_mode %}
+                        <input type="text" class="form-control" id="phone_number" name="phone_number" value="{{ teacher_detail.profile.phone_number|default:'' }}">
+                      {% else %}
+                        <p class="form-control-plaintext">{{ teacher_detail.profile.phone_number|default:'-' }}</p>
+                      {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="birth_date" class="form-label">{% trans "birth_date" %}</label>
+                      {% if edit_mode %}
+                        <input type="date" class="form-control" id="birth_date" name="birth_date" value="{{ teacher_detail.profile.birth_date|date:'Y-m-d'|default:'' }}">
+                      {% else %}
+                        <p class="form-control-plaintext">{{ teacher_detail.profile.birth_date|date:'Y-m-d'|default:'-' }}</p>
+                      {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="gender" class="form-label">{% trans "gender" %}</label>
+                      {% if edit_mode %}
+                        <select class="form-select" id="gender" name="gender">
+                          <option value="">{% trans "select_gender" %}</option>
+                          <option value="male" {% if teacher_detail.profile.gender == 'male' %}selected{% endif %}>{% trans "male" %}</option>
+                          <option value="female" {% if teacher_detail.profile.gender == 'female' %}selected{% endif %}>{% trans "female" %}</option>
+                        </select>
+                      {% else %}
+                        <p class="form-control-plaintext">{{ teacher_detail.profile.gender|default:'-'|capfirst }}</p>
+                      {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="birth_place" class="form-label">{% trans "birth_place" %}</label>
+                      {% if edit_mode %}
+                        <input type="text" class="form-control" id="birth_place" name="birth_place" value="{{ teacher_detail.profile.birth_place|default:'' }}">
+                      {% else %}
+                        <p class="form-control-plaintext">{{ teacher_detail.profile.birth_place|default:'-' }}</p>
+                      {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="living_place" class="form-label">{% trans "living_place" %}</label>
+                      {% if edit_mode %}
+                        <input type="text" class="form-control" id="living_place" name="living_place" value="{{ teacher_detail.profile.living_place|default:'' }}">
+                      {% else %}
+                        <p class="form-control-plaintext">{{ teacher_detail.profile.living_place|default:'-' }}</p>
+                      {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="passport_number" class="form-label">{% trans "passport_number" %}</label>
+                      {% if edit_mode %}
+                        <input type="text" class="form-control" id="passport_number" name="passport_number" placeholder="AA1234567" value="{{ teacher_detail.profile.passport_number|default:'' }}">
+                      {% else %}
+                        <p class="form-control-plaintext">{{ teacher_detail.profile.passport_number|default:'-' }}</p>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action buttons -->
+          <div class="text-end mt-4">
+            {% if edit_mode %}
+              <button type="submit" class="btn btn-primary">
+                <i class="ti ti-device-floppy me-1"></i> {% trans "save_changes" %}
+              </button>
+              <a href="{% url 'teacher' %}?teacher_id={{ teacher_detail.username }}" class="btn btn-outline-secondary ms-2">
+                <i class="ti ti-x me-1"></i> {% trans "cancel" %}
+              </a>
+            {% else %}
+              <a href="{% url 'teacher' %}?teacher_id={{ teacher_detail.username }}&edit=true" class="btn btn-primary">
+                <i class="ti ti-edit me-1"></i> {% trans "edit" %}
+              </a>
+              <a href="{% url 'teacher' %}" class="btn btn-outline-secondary ms-2">
+                <i class="ti ti-arrow-back me-1"></i> {% trans "back_to_list" %}
+              </a>
+            {% endif %}
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Add Teacher Modal -->
+<div class="modal fade" id="addTeacherModal" tabindex="-1" aria-labelledby="addTeacherModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addTeacherModalLabel">{% trans "Add New Teacher" %}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="{% url 'teacher_add' %}" method="post">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="username" name="username" placeholder="{% trans 'Username' %}" required>
+                <label for="username">{% trans "Username" %}</label>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-floating mb-3">
+                <input type="email" class="form-control" id="email" name="email" placeholder="{% trans 'Email' %}">
+                <label for="email">{% trans "Email" %}</label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <div class="form-floating mb-3">
+                <input type="password" class="form-control" id="password" name="password" placeholder="{% trans 'Password' %}" required>
+                <label for="password">{% trans "Password" %}</label>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-floating mb-3">
+                <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="{% trans 'Confirm Password' %}" required>
+                <label for="confirm_password">{% trans "Confirm Password" %}</label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-floating mb-3">
+            <input type="text" class="form-control" id="full_name" name="full_name" placeholder="{% trans 'Full Name' %}">
+            <label for="full_name">{% trans "Full Name" %}</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="ti ti-user-plus me-1"></i> {% trans "Add Teacher" %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Restore Password Modal -->
+{% if teacher_detail %}
+<div class="modal fade" id="restorePasswordModal" tabindex="-1" aria-labelledby="restorePasswordModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="restorePasswordModalLabel">{% trans "restore_password" %} - {{ teacher_detail.username }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="{% url 'teacher' %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="form_type" value="password_reset">
+        <input type="hidden" name="teacher_id" value="{{ teacher_detail.id }}">
+        <div class="modal-body">
+          <div class="alert alert-warning">
+            <i class="ti ti-alert-triangle me-2"></i>
+            {% trans "you_are_about_to_reset_the_password_for_this_user" %}
+          </div>
+          
+          <div class="form-floating mb-3">
+            <input type="password" class="form-control" id="new_password" name="new_password" placeholder="{% trans 'New Password' %}" required>
+            <label for="new_password">{% trans "new_password" %}</label>
+          </div>
+          
+          <div class="form-floating mb-3">
+            <input type="password" class="form-control" id="confirm_new_password" name="confirm_new_password" placeholder="{% trans 'Confirm New Password' %}" required>
+            <label for="confirm_new_password">{% trans "confirm_new_password" %}</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "cancel" %}</button>
+          <button type="submit" class="btn btn-warning">
+            <i class="ti ti-key me-1"></i> {% trans "restore_password" %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Export Modal -->
+<div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="exportModalLabel">{% trans "export_teachers_to_excel" %}</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="{% url 'export_teachers' %}" method="get">
+        <!-- Pass current filters to export -->
+        {% if filter_gender %}<input type="hidden" name="gender" value="{{ filter_gender }}">{% endif %}
+        {% if search_query %}<input type="hidden" name="search" value="{{ search_query }}">{% endif %}
+        
+        <div class="modal-body">
+          <div class="alert alert-info">
+            <i class="ti ti-info-circle me-2"></i>
+            {% trans "select_information_to_include_in_export" %}
+          </div>
+          
+          <div class="row mb-4">
+            <div class="col-12">
+              <div class="card bg-light">
+                <div class="card-body">
+                  <h6 class="mb-3 fw-semibold">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="include_personal" name="include_personal" value="1" checked>
+                      <label class="form-check-label fw-semibold" for="include_personal">
+                        {% trans "personal_information" %}
+                      </label>
+                    </div>
+                  </h6>
+                  
+                  <div class="row ps-4">
+                    <div class="col-md-4">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="include_full_name" name="fields" value="full_name" checked>
+                        <label class="form-check-label" for="include_full_name">
+                          {% trans "full_name" %}
+                        </label>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="include_gender" name="fields" value="gender" checked>
+                        <label class="form-check-label" for="include_gender">
+                          {% trans "gender" %}
+                        </label>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="include_birth_date" name="fields" value="birth_date">
+                        <label class="form-check-label" for="include_birth_date">
+                          {% trans "birth_date" %}
+                        </label>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="include_email" name="fields" value="email">
+                        <label class="form-check-label" for="include_email">
+                          {% trans "email" %}
+                        </label>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="include_phone" name="fields" value="phone_number">
+                        <label class="form-check-label" for="include_phone">
+                          {% trans "phone_number" %}
+                        </label>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="include_birth_place" name="fields" value="birth_place">
+                        <label class="form-check-label" for="include_birth_place">
+                          {% trans "birth_place" %}
+                        </label>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="include_living_place" name="fields" value="living_place">
+                        <label class="form-check-label" for="include_living_place">
+                          {% trans "living_place" %}
+                        </label>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="include_passport" name="fields" value="passport_number">
+                        <label class="form-check-label" for="include_passport">
+                          {% trans "passport_number" %}
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "cancel" %}</button>
+          <button type="submit" class="btn btn-success">
+            <i class="ti ti-file-export me-1"></i> {% trans "export_to_excel" %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript for Export Modal -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Handle parent checkboxes in export modal
+    const personalCheckbox = document.getElementById('include_personal');
+    
+    if (personalCheckbox) {
+      personalCheckbox.addEventListener('change', function() {
+        const personalFields = document.querySelectorAll('input[name="fields"][value^="full_name"], input[name="fields"][value^="gender"], input[name="fields"][value^="birth_date"], input[name="fields"][value^="email"], input[name="fields"][value^="phone_number"], input[name="fields"][value^="birth_place"], input[name="fields"][value^="living_place"], input[name="fields"][value^="passport_number"]');
+        personalFields.forEach(field => {
+          field.disabled = !this.checked;
+          if (!this.checked) {
+            field.checked = false;
+          }
+        });
+      });
+    }
+    
+    // Count active filters
+    const countActiveFilters = function() {
+      const filterCount = document.getElementById('filterCount');
+      if (!filterCount) return;
+      
+      let count = 0;
+      if ('{{ filter_gender }}') count++;
+      
+      if (count > 0) {
+        filterCount.innerText = count;
+        filterCount.style.display = 'inline';
+      } else {
+        filterCount.style.display = 'none';
+      }
+    };
+    
+    // Initialize the count
+    countActiveFilters();
+  });
+</script>
+{% endblock %}

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-02 21:53+0500\n"
+"POT-Creation-Date: 2025-03-10 03:02+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,31 +19,1453 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
-#: .\config\settings.py:121
+
+#: .\config\settings.py:127
 msgid "uzbek"
 msgstr "Узбекский"
 
-#: .\config\settings.py:122
+#: .\config\settings.py:128
 msgid "russian"
 msgstr "Русский"
 
-#: .\templates\layouts\main.html:18 .\templates\layouts\main.html:27
+#: .\templates\auth\login.html:12 .\templates\layouts\main.html:18
+#: .\templates\layouts\main.html:27
 msgid "brand_name"
 msgstr "EduPortal"
 
-#: .\templates\layouts\main.html:38 .\templates\layouts\main.html:47
-msgid "profile"
-msgstr "Профиль"
+#: .\templates\auth\login.html:18 .\templates\user\index.html:399
+#: .\web\views\user.py:523 .\web\views\user.py:607 .\web\views\user.py:632
+msgid "username"
+msgstr ""
 
-#: .\templates\layouts\main.html:55 .\templates\layouts\main.html:64
-msgid "reports"
+#: .\templates\auth\login.html:22
+msgid "password"
+msgstr ""
+
+#: .\templates\auth\login.html:32
+msgid "login"
+msgstr ""
+
+#: .\templates\dashboard\index.html:96 .\templates\help\index.html:16
+#: .\templates\profile\index.html:16 .\templates\report\index.html:16
+#: .\templates\user\index.html:15
+msgid "dashboard"
+msgstr ""
+
+#: .\templates\dashboard\index.html:115 .\templates\user\index.html:16
+msgid "students"
+msgstr ""
+
+#: .\templates\dashboard\index.html:117
+msgid "students_list"
+msgstr ""
+
+#: .\templates\dashboard\index.html:135
+msgid "teachers"
+msgstr ""
+
+#: .\templates\dashboard\index.html:137
+msgid "teachers_list"
+msgstr ""
+
+#: .\templates\dashboard\index.html:156
+msgid "admins"
+msgstr ""
+
+#: .\templates\dashboard\index.html:158
+msgid "admins_list"
+msgstr ""
+
+#: .\templates\dashboard\index.html:176
+msgid "chart_all_reports"
+msgstr ""
+
+#: .\templates\dashboard\index.html:190
+msgid "chart_all_reports_list"
+msgstr ""
+
+#: .\templates\dashboard\index.html:199 .\templates\dashboard\index.html:305
+#: .\templates\report\index.html:60 .\templates\report\index.html:112
+#: .\web\models.py:87
+msgid "submitted"
+msgstr ""
+
+#: .\templates\dashboard\index.html:200
+msgid "reports_awaiting_initial_review"
+msgstr ""
+
+#: .\templates\dashboard\index.html:210 .\templates\dashboard\index.html:305
+#: .\templates\report\index.html:59 .\web\models.py:86
+msgid "pending"
+msgstr ""
+
+#: .\templates\dashboard\index.html:211
+msgid "reports_currently_being_evaluated"
+msgstr ""
+
+#: .\templates\dashboard\index.html:221 .\templates\dashboard\index.html:305
+#: .\templates\report\index.html:61 .\web\models.py:89
+msgid "approved"
+msgstr ""
+
+#: .\templates\dashboard\index.html:222
+msgid "reports_that_passed_all_requirements"
+msgstr ""
+
+#: .\templates\dashboard\index.html:232 .\templates\dashboard\index.html:305
+#: .\templates\report\index.html:62 .\web\models.py:90
+msgid "rejected"
+msgstr ""
+
+#: .\templates\dashboard\index.html:233
+msgid "reports_requiring_revision"
+msgstr ""
+
+#: .\templates\dashboard\index.html:245
+#, fuzzy
+#| msgid "reports"
+msgid "total_reports"
 msgstr "Отчеты"
 
-#: .\templates\layouts\main.html:68 .\templates\layouts\main.html:73
+#: .\templates\help\index.html:13 .\templates\help\index.html:17
+msgid "help_center"
+msgstr ""
+
+#: .\templates\help\index.html:44
+msgid "help_requests"
+msgstr ""
+
+#: .\templates\help\index.html:47 .\templates\help\index.html:255
+msgid "new_help_request"
+msgstr ""
+
+#: .\templates\help\index.html:55 .\templates\report\index.html:55
+#: .\templates\user\index.html:91 .\templates\user\index.html:102
+#: .\templates\user\index.html:113 .\templates\user\index.html:124
+#: .\templates\user\index.html:134
+msgid "all"
+msgstr ""
+
+#: .\templates\help\index.html:56 .\web\models.py:102
+msgid "open"
+msgstr ""
+
+#: .\templates\help\index.html:57 .\templates\help\index.html:531
+#: .\web\models.py:103
+msgid "in_progress"
+msgstr ""
+
+#: .\templates\help\index.html:58 .\templates\help\index.html:532
+#: .\web\models.py:104
+msgid "resolved"
+msgstr ""
+
+#: .\templates\help\index.html:59 .\templates\help\index.html:533
+#: .\web\models.py:105
+msgid "closed"
+msgstr ""
+
+#: .\templates\help\index.html:66
+msgid "search_help_requests"
+msgstr ""
+
+#: .\templates\help\index.html:68 .\templates\report\index.html:71
+msgid "all_fields"
+msgstr ""
+
+#: .\templates\help\index.html:69 .\templates\help\index.html:274
+#: .\templates\help\index.html:367 .\templates\help\index.html:447
+msgid "subject"
+msgstr ""
+
+#: .\templates\help\index.html:70 .\templates\help\index.html:284
+#: .\templates\help\index.html:377 .\templates\help\index.html:457
+msgid "message"
+msgstr ""
+
+#: .\templates\help\index.html:71 .\templates\help\index.html:110
+#: .\templates\help\index.html:452 .\templates\profile\index.html:409
+#: .\templates\report\index.html:74 .\templates\report\index.html:113
+#: .\templates\report\index.html:470 .\templates\user\index.html:674
+#: .\templates\user\index.html:735
+msgid "type"
+msgstr ""
+
+#: .\templates\help\index.html:73
+#, fuzzy
+#| msgid "brand_name"
+msgid "user_name"
+msgstr "EduPortal"
+
+#: .\templates\help\index.html:104 .\templates\help\index.html:442
+msgid "user"
+msgstr ""
+
+#: .\templates\help\index.html:109
+msgid "created"
+msgstr ""
+
+#: .\templates\help\index.html:113
+msgid "responded"
+msgstr ""
+
+#: .\templates\help\index.html:137 .\templates\report\index.html:141
+msgid "view_details"
+msgstr ""
+
+#: .\templates\help\index.html:142
+msgid "download_attachment"
+msgstr ""
+
+#: .\templates\help\index.html:152 .\templates\report\index.html:158
+#: .\templates\user\index.html:789
+msgid "edit"
+msgstr ""
+
+#: .\templates\help\index.html:160
+msgid "respond"
+msgstr ""
+
+#: .\templates\help\index.html:238
+msgid "no_help_requests_found"
+msgstr ""
+
+#: .\templates\help\index.html:262 .\templates\help\index.html:355
+#: .\templates\help\index.html:507 .\templates\report\index.html:280
+#: .\templates\report\index.html:372 .\templates\report\index.html:525
+#: .\templates\report\index.html:573 .\templates\report\index.html:623
+msgid "please_fix_the_following_errors"
+msgstr ""
+
+#: .\templates\help\index.html:294 .\templates\help\index.html:387
+msgid "request_type"
+msgstr ""
+
+#: .\templates\help\index.html:296 .\templates\help\index.html:389
+msgid "select_request_type"
+msgstr ""
+
+#: .\templates\help\index.html:297 .\templates\help\index.html:390
+#: .\web\models.py:95
+msgid "bug"
+msgstr ""
+
+#: .\templates\help\index.html:298 .\templates\help\index.html:391
+#: .\web\models.py:96
+msgid "feature"
+msgstr ""
+
+#: .\templates\help\index.html:299 .\templates\help\index.html:392
+#: .\templates\layouts\main.html:91 .\templates\layouts\main.html:100
+#: .\web\models.py:97
 msgid "help"
 msgstr "Помощь"
 
-#: .\templates\layouts\main.html:85 .\templates\layouts\main.html:91
-#: .\templates\layouts\main.html:219
+#: .\templates\help\index.html:300 .\templates\help\index.html:393
+#: .\templates\report\index.html:318 .\templates\report\index.html:410
+#: .\web\models.py:81 .\web\models.py:98
+msgid "other"
+msgstr ""
+
+#: .\templates\help\index.html:310 .\templates\help\index.html:403
+msgid "attachment"
+msgstr ""
+
+#: .\templates\help\index.html:315 .\templates\help\index.html:409
+#: .\templates\report\index.html:333 .\templates\report\index.html:426
+msgid "supported_formats"
+msgstr ""
+
+#: .\templates\help\index.html:315 .\templates\help\index.html:409
+#: .\templates\report\index.html:333 .\templates\report\index.html:426
+msgid "etc"
+msgstr ""
+
+#: .\templates\help\index.html:316 .\templates\help\index.html:410
+#: .\templates\report\index.html:334 .\templates\report\index.html:427
+msgid "max_size"
+msgstr ""
+
+#: .\templates\help\index.html:328 .\templates\help\index.html:422
+#: .\templates\help\index.html:544 .\templates\help\index.html:574
+#: .\templates\profile\index.html:622 .\templates\profile\index.html:673
+#: .\templates\report\index.html:346 .\templates\report\index.html:439
+#: .\templates\report\index.html:548 .\templates\report\index.html:596
+#: .\templates\report\index.html:662 .\templates\report\index.html:691
+#: .\templates\user\index.html:229 .\templates\user\index.html:253
+#: .\templates\user\index.html:785 .\templates\user\index.html:915
+#: .\templates\user\index.html:954 .\templates\user\index.html:1004
+#: .\templates\user\index.html:1249
+msgid "cancel"
+msgstr ""
+
+#: .\templates\help\index.html:329 .\templates\report\index.html:348
+msgid "submit"
+msgstr ""
+
+#: .\templates\help\index.html:348
+msgid "edit_help_request"
+msgstr ""
+
+#: .\templates\help\index.html:408 .\templates\report\index.html:425
+msgid "leave_empty_to_keep_current_file"
+msgstr ""
+
+#: .\templates\help\index.html:423
+msgid "save"
+msgstr ""
+
+#: .\templates\help\index.html:436
+msgid "view_help_request"
+msgstr ""
+
+#: .\templates\help\index.html:462 .\templates\user\index.html:736
+msgid "status"
+msgstr ""
+
+#: .\templates\help\index.html:467 .\templates\help\index.html:519
+msgid "response"
+msgstr ""
+
+#: .\templates\help\index.html:472
+msgid "responded_by"
+msgstr ""
+
+#: .\templates\help\index.html:477
+msgid "response_date"
+msgstr ""
+
+#: .\templates\help\index.html:483 .\templates\report\index.html:501
+msgid "close"
+msgstr ""
+
+#: .\templates\help\index.html:500
+msgid "respond_to_help_request"
+msgstr ""
+
+#: .\templates\help\index.html:529
+msgid "update_status"
+msgstr ""
+
+#: .\templates\help\index.html:545
+msgid "send_response"
+msgstr ""
+
+#: .\templates\help\index.html:564
+msgid "delete_help_request"
+msgstr ""
+
+#: .\templates\help\index.html:569
+msgid "are_you_sure_you_want_to_delete_this_help_request"
+msgstr ""
+
+#: .\templates\help\index.html:570 .\templates\report\index.html:687
+#: .\templates\user\index.html:225 .\templates\user\index.html:250
+msgid "this_action_cannot_be_undone"
+msgstr ""
+
+#: .\templates\help\index.html:575 .\templates\report\index.html:692
+#: .\templates\user\index.html:204 .\templates\user\index.html:230
+msgid "delete"
+msgstr ""
+
+#: .\templates\help\index.html:608 .\templates\report\index.html:723
+#: .\web\views\report.py:50
+msgid "uploaded_file_is_empty_upload_valid_file"
+msgstr ""
+
+#: .\templates\help\index.html:615 .\templates\report\index.html:730
+#: .\web\views\report.py:54
+msgid "file_size_exceeds_limit_upload_smaller_file"
+msgstr ""
+
+#: .\templates\help\index.html:625 .\templates\report\index.html:740
+#: .\web\views\report.py:62
+msgid "this_file_type_is_not_allowed_extensions"
+msgstr ""
+
+#: .\templates\layouts\main.html:38 .\templates\layouts\main.html:47
+#: .\templates\layouts\main.html:242 .\templates\profile\index.html:17
+msgid "profile"
+msgstr "Профиль"
+
+#: .\templates\layouts\main.html:56 .\templates\layouts\main.html:65
+msgid "users"
+msgstr ""
+
+#: .\templates\layouts\main.html:74 .\templates\layouts\main.html:83
+#: .\templates\report\index.html:13 .\templates\report\index.html:17
+#: .\templates\report\index.html:44 .\templates\user\index.html:381
+msgid "reports"
+msgstr "Отчеты"
+
+#: .\templates\layouts\main.html:112 .\templates\layouts\main.html:118
+#: .\templates\layouts\main.html:256
 msgid "logout"
 msgstr "Выйти"
+
+#: .\templates\profile\index.html:13
+#, fuzzy
+#| msgid "profile"
+msgid "profile_settings"
+msgstr "Профиль"
+
+#: .\templates\profile\index.html:45 .\templates\user\index.html:369
+#: .\templates\user\index.html:1046
+msgid "personal_information"
+msgstr ""
+
+#: .\templates\profile\index.html:49 .\templates\user\index.html:372
+#: .\templates\user\index.html:1130
+msgid "education"
+msgstr ""
+
+#: .\templates\profile\index.html:52 .\templates\profile\index.html:334
+#: .\templates\user\index.html:375 .\templates\user\index.html:599
+#: .\templates\user\index.html:1222
+msgid "language_certificates"
+msgstr ""
+
+#: .\templates\profile\index.html:55 .\templates\profile\index.html:397
+#: .\templates\user\index.html:378 .\templates\user\index.html:662
+#: .\templates\user\index.html:1239
+msgid "articles"
+msgstr ""
+
+#: .\templates\profile\index.html:58
+msgid "dissertation"
+msgstr ""
+
+#: .\templates\profile\index.html:62 .\templates\profile\index.html:523
+#: .\templates\profile\index.html:579
+msgid "change_password"
+msgstr ""
+
+#: .\templates\profile\index.html:95 .\templates\user\index.html:395
+msgid "personal_details"
+msgstr ""
+
+#: .\templates\profile\index.html:99 .\templates\user\index.html:408
+#: .\templates\user\index.html:1056 .\web\views\user.py:530
+#: .\web\views\user.py:607 .\web\views\user.py:632
+msgid "full_name"
+msgstr ""
+
+#: .\templates\profile\index.html:110 .\templates\user\index.html:432
+#: .\templates\user\index.html:1072 .\web\views\user.py:532
+msgid "birth_date"
+msgstr ""
+
+#: .\templates\profile\index.html:121 .\templates\user\index.html:122
+#: .\templates\user\index.html:440 .\templates\user\index.html:1064
+#: .\web\views\user.py:531
+msgid "gender"
+msgstr ""
+
+#: .\templates\profile\index.html:123 .\templates\user\index.html:443
+msgid "select_gender"
+msgstr ""
+
+#: .\templates\profile\index.html:124 .\templates\user\index.html:125
+#: .\templates\user\index.html:444 .\web\models.py:65 .\web\views\user.py:582
+msgid "male"
+msgstr ""
+
+#: .\templates\profile\index.html:125 .\templates\user\index.html:126
+#: .\templates\user\index.html:445 .\web\models.py:66 .\web\views\user.py:582
+msgid "female"
+msgstr ""
+
+#: .\templates\profile\index.html:136 .\templates\user\index.html:468
+#: .\templates\user\index.html:1112 .\web\views\user.py:537
+msgid "passport_number"
+msgstr ""
+
+#: .\templates\profile\index.html:147 .\templates\user\index.html:452
+#: .\templates\user\index.html:1096 .\web\views\user.py:535
+msgid "birth_place"
+msgstr ""
+
+#: .\templates\profile\index.html:158 .\templates\user\index.html:460
+#: .\templates\user\index.html:1104 .\web\views\user.py:536
+msgid "living_place"
+msgstr ""
+
+#: .\templates\profile\index.html:169 .\templates\user\index.html:424
+#: .\templates\user\index.html:1088 .\web\views\user.py:534
+msgid "phone_number"
+msgstr ""
+
+#: .\templates\profile\index.html:180 .\templates\user\index.html:416
+#: .\templates\user\index.html:1080 .\web\views\user.py:533
+msgid "email"
+msgstr ""
+
+#: .\templates\profile\index.html:192 .\templates\profile\index.html:323
+#: .\templates\profile\index.html:511 .\templates\user\index.html:782
+msgid "save_changes"
+msgstr ""
+
+#: .\templates\profile\index.html:211
+msgid "bachelor_degree"
+msgstr ""
+
+#: .\templates\profile\index.html:215 .\templates\profile\index.html:236
+msgid "major"
+msgstr ""
+
+#: .\templates\profile\index.html:219 .\templates\profile\index.html:240
+msgid "diploma"
+msgstr ""
+
+#: .\templates\profile\index.html:223 .\templates\profile\index.html:244
+msgid "diploma_date"
+msgstr ""
+
+#: .\templates\profile\index.html:232
+msgid "master_degree"
+msgstr ""
+
+#: .\templates\profile\index.html:253 .\templates\user\index.html:190
+#: .\templates\user\index.html:484
+msgid "next_education"
+msgstr ""
+
+#: .\templates\profile\index.html:257 .\templates\user\index.html:89
+#: .\templates\user\index.html:488 .\templates\user\index.html:1140
+#: .\web\views\user.py:549
+msgid "education_type"
+msgstr ""
+
+#: .\templates\profile\index.html:259 .\templates\user\index.html:491
+msgid "select_education_type"
+msgstr ""
+
+#: .\templates\profile\index.html:260 .\web\models.py:70
+msgid "intern_researcher"
+msgstr ""
+
+#: .\templates\profile\index.html:261 .\web\models.py:71
+msgid "phd"
+msgstr ""
+
+#: .\templates\profile\index.html:262 .\web\models.py:72
+msgid "dsc"
+msgstr ""
+
+#: .\templates\profile\index.html:263 .\web\models.py:73
+msgid "independent_phd"
+msgstr ""
+
+#: .\templates\profile\index.html:264 .\web\models.py:74
+msgid "independent_dsc"
+msgstr ""
+
+#: .\templates\profile\index.html:268 .\templates\user\index.html:501
+msgid "education_level_course"
+msgstr ""
+
+#: .\templates\profile\index.html:270
+msgid "Select Level"
+msgstr ""
+
+#: .\templates\profile\index.html:277 .\templates\user\index.html:111
+#: .\templates\user\index.html:514 .\templates\user\index.html:1156
+#: .\web\views\user.py:551
+msgid "education_major"
+msgstr ""
+
+#: .\templates\profile\index.html:279 .\templates\user\index.html:517
+msgid "select_education_major"
+msgstr ""
+
+#: .\templates\profile\index.html:291
+msgid "Teacher Information"
+msgstr ""
+
+#: .\templates\profile\index.html:295 .\templates\user\index.html:542
+#: .\templates\user\index.html:1196 .\web\views\user.py:556
+msgid "teacher_full_name"
+msgstr ""
+
+#: .\templates\profile\index.html:299 .\templates\user\index.html:550
+#: .\templates\user\index.html:1204 .\web\views\user.py:557
+msgid "teacher_degree"
+msgstr ""
+
+#: .\templates\profile\index.html:303 .\templates\user\index.html:558
+msgid "teacher_academic_rank"
+msgstr ""
+
+#: .\templates\profile\index.html:307 .\templates\user\index.html:566
+msgid "teacher_work_place_position"
+msgstr ""
+
+#: .\templates\profile\index.html:311 .\templates\user\index.html:574
+msgid "order_number"
+msgstr ""
+
+#: .\templates\profile\index.html:315 .\templates\user\index.html:582
+msgid "order_date"
+msgstr ""
+
+#: .\templates\profile\index.html:336 .\templates\user\index.html:601
+msgid "add_certificate"
+msgstr ""
+
+#: .\templates\profile\index.html:346
+msgid "Certificate Name"
+msgstr ""
+
+#: .\templates\profile\index.html:347
+msgid "Date"
+msgstr ""
+
+#: .\templates\profile\index.html:348
+msgid "File"
+msgstr ""
+
+#: .\templates\profile\index.html:349
+msgid "Actions"
+msgstr ""
+
+#: .\templates\profile\index.html:361
+msgid "Download"
+msgstr ""
+
+#: .\templates\profile\index.html:364
+msgid "No File"
+msgstr ""
+
+#: .\templates\profile\index.html:373
+msgid "Are you sure you want to delete this certificate?"
+msgstr ""
+
+#: .\templates\profile\index.html:385 .\templates\user\index.html:650
+msgid "not_any_language_certificates"
+msgstr ""
+
+#: .\templates\profile\index.html:399 .\templates\profile\index.html:640
+#: .\templates\user\index.html:664 .\templates\user\index.html:969
+msgid "add_article"
+msgstr ""
+
+#: .\templates\profile\index.html:410 .\templates\user\index.html:675
+msgid "number"
+msgstr ""
+
+#: .\templates\profile\index.html:411 .\templates\user\index.html:612
+#: .\templates\user\index.html:676
+msgid "date"
+msgstr ""
+
+#: .\templates\profile\index.html:412 .\templates\user\index.html:613
+#: .\templates\user\index.html:677
+#, fuzzy
+#| msgid "profile"
+msgid "file"
+msgstr "Профиль"
+
+#: .\templates\profile\index.html:413 .\templates\user\index.html:614
+#: .\templates\user\index.html:678 .\templates\user\index.html:739
+msgid "actions"
+msgstr ""
+
+#: .\templates\profile\index.html:426 .\templates\report\index.html:146
+#: .\templates\user\index.html:626 .\templates\user\index.html:691
+msgid "download"
+msgstr ""
+
+#: .\templates\profile\index.html:429 .\templates\user\index.html:629
+#: .\templates\user\index.html:694
+#, fuzzy
+#| msgid "profile"
+msgid "no_file"
+msgstr "Профиль"
+
+#: .\templates\profile\index.html:438 .\templates\user\index.html:703
+msgid "are_you_sure_you_want_to_delete_this_article?"
+msgstr ""
+
+#: .\templates\profile\index.html:450 .\templates\user\index.html:715
+msgid "not_any_articles"
+msgstr ""
+
+#: .\templates\profile\index.html:461
+msgid "dissertation_information"
+msgstr ""
+
+#: .\templates\profile\index.html:470
+msgid "dissertation_title"
+msgstr ""
+
+#: .\templates\profile\index.html:477
+msgid "progress"
+msgstr ""
+
+#: .\templates\profile\index.html:497
+msgid "dissertation_file"
+msgstr ""
+
+#: .\templates\profile\index.html:503
+msgid "download_current_file"
+msgstr ""
+
+#: .\templates\profile\index.html:532
+msgid "current_password"
+msgstr ""
+
+#: .\templates\profile\index.html:544 .\templates\user\index.html:906
+msgid "new_password"
+msgstr ""
+
+#: .\templates\profile\index.html:556
+msgid "password_not_similar_to_other_personal_info"
+msgstr ""
+
+#: .\templates\profile\index.html:557
+msgid "password_must_contain_minimum_8_characters"
+msgstr ""
+
+#: .\templates\profile\index.html:558
+msgid "password_cannot_be_commonly_used"
+msgstr ""
+
+#: .\templates\profile\index.html:559
+msgid "password_cannot_be_entirely_numeric"
+msgstr ""
+
+#: .\templates\profile\index.html:566 .\templates\user\index.html:911
+msgid "confirm_new_password"
+msgstr ""
+
+#: .\templates\profile\index.html:600 .\templates\user\index.html:930
+msgid "add_language_certificate"
+msgstr ""
+
+#: .\templates\profile\index.html:606 .\templates\user\index.html:611
+#: .\templates\user\index.html:939 .\web\views\user.py:607
+msgid "certificate_name"
+msgstr ""
+
+#: .\templates\profile\index.html:611 .\templates\user\index.html:944
+#: .\web\views\user.py:607
+msgid "certificate_date"
+msgstr ""
+
+#: .\templates\profile\index.html:616 .\templates\user\index.html:949
+msgid "certificate_file"
+msgstr ""
+
+#: .\templates\profile\index.html:623 .\templates\user\index.html:956
+msgid "save_certificate"
+msgstr ""
+
+#: .\templates\profile\index.html:646 .\templates\user\index.html:978
+#: .\web\views\user.py:632
+msgid "article_type"
+msgstr ""
+
+#: .\templates\profile\index.html:648 .\templates\user\index.html:980
+msgid "select_article_type"
+msgstr ""
+
+#: .\templates\profile\index.html:649 .\templates\user\index.html:981
+#: .\web\models.py:109
+msgid "republic_scientific_journal"
+msgstr ""
+
+#: .\templates\profile\index.html:650 .\templates\user\index.html:982
+#: .\web\models.py:110
+msgid "foreign_scientific_journal"
+msgstr ""
+
+#: .\templates\profile\index.html:651 .\templates\user\index.html:983
+#: .\web\models.py:111
+msgid "republic_conference_journal"
+msgstr ""
+
+#: .\templates\profile\index.html:652 .\templates\user\index.html:984
+#: .\web\models.py:112
+msgid "foreign_conference_journal"
+msgstr ""
+
+#: .\templates\profile\index.html:657 .\templates\user\index.html:989
+#: .\web\views\user.py:632
+msgid "article_number"
+msgstr ""
+
+#: .\templates\profile\index.html:662 .\templates\user\index.html:994
+#: .\web\views\user.py:632
+msgid "article_date"
+msgstr ""
+
+#: .\templates\profile\index.html:667 .\templates\user\index.html:999
+msgid "article_file"
+msgstr ""
+
+#: .\templates\profile\index.html:674 .\templates\user\index.html:1006
+msgid "save_article"
+msgstr ""
+
+#: .\templates\report\index.html:47 .\templates\report\index.html:273
+#, fuzzy
+#| msgid "reports"
+msgid "add_report"
+msgstr "Отчеты"
+
+#: .\templates\report\index.html:57 .\web\models.py:85
+msgid "draft"
+msgstr ""
+
+#: .\templates\report\index.html:69
+#, fuzzy
+#| msgid "reports"
+msgid "search_reports"
+msgstr "Отчеты"
+
+#: .\templates\report\index.html:72 .\templates\report\index.html:292
+#: .\templates\report\index.html:384 .\templates\report\index.html:465
+#: .\templates\user\index.html:734
+msgid "title"
+msgstr ""
+
+#: .\templates\report\index.html:73 .\templates\report\index.html:302
+#: .\templates\report\index.html:394 .\templates\report\index.html:475
+msgid "description"
+msgstr ""
+
+#: .\templates\report\index.html:76
+msgid "student_name"
+msgstr ""
+
+#: .\templates\report\index.html:107 .\templates\report\index.html:460
+msgid "student"
+msgstr ""
+
+#: .\templates\report\index.html:116 .\templates\report\index.html:480
+#: .\templates\report\index.html:650 .\templates\user\index.html:737
+msgid "due_date"
+msgstr ""
+
+#: .\templates\report\index.html:117
+msgid "expired"
+msgstr ""
+
+#: .\templates\report\index.html:167 .\templates\report\index.html:549
+msgid "approve"
+msgstr ""
+
+#: .\templates\report\index.html:170 .\templates\report\index.html:597
+msgid "reject"
+msgstr ""
+
+#: .\templates\report\index.html:178 .\templates\report\index.html:663
+msgid "assign"
+msgstr ""
+
+#: .\templates\report\index.html:256
+#, fuzzy
+#| msgid "reports"
+msgid "no_reports_found"
+msgstr "Отчеты"
+
+#: .\templates\report\index.html:312 .\templates\report\index.html:404
+#, fuzzy
+#| msgid "reports"
+msgid "report_type"
+msgstr "Отчеты"
+
+#: .\templates\report\index.html:314 .\templates\report\index.html:406
+msgid "select_report_type"
+msgstr ""
+
+#: .\templates\report\index.html:315 .\templates\report\index.html:407
+#: .\web\models.py:78
+msgid "3-month"
+msgstr ""
+
+#: .\templates\report\index.html:316 .\templates\report\index.html:408
+#: .\web\models.py:79
+msgid "6-month"
+msgstr ""
+
+#: .\templates\report\index.html:317 .\templates\report\index.html:409
+#: .\web\models.py:80
+msgid "annual"
+msgstr ""
+
+#: .\templates\report\index.html:328 .\templates\report\index.html:420
+#, fuzzy
+#| msgid "reports"
+msgid "report_file"
+msgstr "Отчеты"
+
+#: .\templates\report\index.html:347 .\templates\report\index.html:440
+msgid "save_as_draft"
+msgstr ""
+
+#: .\templates\report\index.html:365
+#, fuzzy
+#| msgid "reports"
+msgid "edit_report"
+msgstr "Отчеты"
+
+#: .\templates\report\index.html:441
+msgid "save_and_submit"
+msgstr ""
+
+#: .\templates\report\index.html:454
+#, fuzzy
+#| msgid "reports"
+msgid "view_report"
+msgstr "Отчеты"
+
+#: .\templates\report\index.html:485 .\templates\report\index.html:537
+#: .\templates\report\index.html:585
+msgid "feedback"
+msgstr ""
+
+#: .\templates\report\index.html:490
+msgid "reviewed_by"
+msgstr ""
+
+#: .\templates\report\index.html:495
+msgid "review_date"
+msgstr ""
+
+#: .\templates\report\index.html:518
+msgid "approve_report"
+msgstr ""
+
+#: .\templates\report\index.html:538
+msgid "provide_feedback_to_student"
+msgstr ""
+
+#: .\templates\report\index.html:566
+#, fuzzy
+#| msgid "reports"
+msgid "reject_report"
+msgstr "Отчеты"
+
+#: .\templates\report\index.html:586
+msgid "explain_why_report_is_rejected"
+msgstr ""
+
+#: .\templates\report\index.html:616
+msgid "assign_report_to_teacher"
+msgstr ""
+
+#: .\templates\report\index.html:635 .\templates\report\index.html:637
+msgid "select_teacher"
+msgstr ""
+
+#: .\templates\report\index.html:652
+msgid "teacher_must_review_by_due_date"
+msgstr ""
+
+#: .\templates\report\index.html:681
+#, fuzzy
+#| msgid "reports"
+msgid "delete_report"
+msgstr "Отчеты"
+
+#: .\templates\report\index.html:686
+msgid "are_you_sure_you_want_to_delete_this_report"
+msgstr ""
+
+#: .\templates\user\index.html:12
+msgid "students_management"
+msgstr ""
+
+#: .\templates\user\index.html:17
+msgid "student_details"
+msgstr ""
+
+#: .\templates\user\index.html:24
+msgid "add_student"
+msgstr ""
+
+#: .\templates\user\index.html:51
+msgid "Students List"
+msgstr ""
+
+#: .\templates\user\index.html:54
+msgid "filters"
+msgstr ""
+
+#: .\templates\user\index.html:60
+#, fuzzy
+#| msgid "reports"
+msgid "export"
+msgstr "Отчеты"
+
+#: .\templates\user\index.html:64
+msgid "Search by name or major..."
+msgstr ""
+
+#: .\templates\user\index.html:100 .\templates\user\index.html:172
+msgid "level"
+msgstr ""
+
+#: .\templates\user\index.html:132
+#, fuzzy
+#| msgid "reports"
+msgid "reports_count"
+msgstr "Отчеты"
+
+#: .\templates\user\index.html:135
+#, fuzzy
+#| msgid "reports"
+msgid "no_reports"
+msgstr "Отчеты"
+
+#: .\templates\user\index.html:145
+msgid "reset_filters"
+msgstr ""
+
+#: .\templates\user\index.html:148
+msgid "apply_filters"
+msgstr ""
+
+#: .\templates\user\index.html:180
+msgid "next_education_major"
+msgstr ""
+
+#: .\templates\user\index.html:185 .\templates\user\index.html:195
+msgid "Not specified"
+msgstr ""
+
+#: .\templates\user\index.html:201
+msgid "view"
+msgstr ""
+
+#: .\templates\user\index.html:219 .\templates\user\index.html:241
+#: .\templates\user\index.html:259
+msgid "delete_student"
+msgstr ""
+
+#: .\templates\user\index.html:224 .\templates\user\index.html:248
+msgid "are_you_sure_you_want_to_delete_this_student"
+msgstr ""
+
+#: .\templates\user\index.html:329
+msgid "No students found matching your search."
+msgstr ""
+
+#: .\templates\user\index.html:331
+msgid "No students available."
+msgstr ""
+
+#: .\templates\user\index.html:359 .\templates\user\index.html:891
+#: .\templates\user\index.html:917
+msgid "restore_password"
+msgstr ""
+
+#: .\templates\user\index.html:402
+msgid "username_cannot_be_changed"
+msgstr ""
+
+#: .\templates\user\index.html:504
+msgid "select_level"
+msgstr ""
+
+#: .\templates\user\index.html:538
+msgid "teacher_information"
+msgstr ""
+
+#: .\templates\user\index.html:638
+msgid "are_you_sure_you_want_to_delete_this_certificate?"
+msgstr ""
+
+#: .\templates\user\index.html:726
+#, fuzzy
+#| msgid "reports"
+msgid "student_reports"
+msgstr "Отчеты"
+
+#: .\templates\user\index.html:738
+msgid "submitted_at"
+msgstr ""
+
+#: .\templates\user\index.html:770
+msgid "no_reports_available_for_this_student"
+msgstr ""
+
+#: .\templates\user\index.html:792
+msgid "back_to_list"
+msgstr ""
+
+#: .\templates\user\index.html:808
+msgid "Add New Student"
+msgstr ""
+
+#: .\templates\user\index.html:817 .\templates\user\index.html:818
+msgid "Username"
+msgstr ""
+
+#: .\templates\user\index.html:823 .\templates\user\index.html:824
+msgid "Email"
+msgstr ""
+
+#: .\templates\user\index.html:832 .\templates\user\index.html:833
+msgid "Password"
+msgstr ""
+
+#: .\templates\user\index.html:838 .\templates\user\index.html:839
+msgid "Confirm Password"
+msgstr ""
+
+#: .\templates\user\index.html:845 .\templates\user\index.html:846
+msgid "Full Name"
+msgstr ""
+
+#: .\templates\user\index.html:853 .\templates\user\index.html:864
+msgid "Select"
+msgstr ""
+
+#: .\templates\user\index.html:858
+msgid "Next Education"
+msgstr ""
+
+#: .\templates\user\index.html:869
+msgid "Education Major"
+msgstr ""
+
+#: .\templates\user\index.html:875
+msgid "Cancel"
+msgstr ""
+
+#: .\templates\user\index.html:877
+msgid "Add Student"
+msgstr ""
+
+#: .\templates\user\index.html:901
+msgid "you_are_about_to_reset_the_password_for_this_user"
+msgstr ""
+
+#: .\templates\user\index.html:905
+msgid "New Password"
+msgstr ""
+
+#: .\templates\user\index.html:910
+msgid "Confirm New Password"
+msgstr ""
+
+#: .\templates\user\index.html:1020
+msgid "export_students_to_excel"
+msgstr ""
+
+#: .\templates\user\index.html:1035
+msgid "select_information_to_include_in_export"
+msgstr ""
+
+#: .\templates\user\index.html:1148 .\web\views\user.py:550
+msgid "education_level"
+msgstr ""
+
+#: .\templates\user\index.html:1164 .\web\views\user.py:552
+msgid "bachelor_major"
+msgstr ""
+
+#: .\templates\user\index.html:1172 .\web\views\user.py:553
+msgid "bachelor_diploma"
+msgstr ""
+
+#: .\templates\user\index.html:1180 .\web\views\user.py:554
+msgid "master_major"
+msgstr ""
+
+#: .\templates\user\index.html:1188 .\web\views\user.py:555
+msgid "master_diploma"
+msgstr ""
+
+#: .\templates\user\index.html:1251
+msgid "export_to_excel"
+msgstr ""
+
+#: .\web\models.py:88
+msgid "under_review"
+msgstr ""
+
+#: .\web\models.py:119
+msgid "enter_valid_passport_number"
+msgstr ""
+
+#: .\web\views\auth.py:26
+msgid "invalid_credentials"
+msgstr ""
+
+#: .\web\views\help.py:86 .\web\views\report.py:189
+msgid "you_do_not_have_permission_to_add"
+msgstr ""
+
+#: .\web\views\help.py:111 .\web\views\help.py:131
+msgid "help_request_submitted_successfully"
+msgstr ""
+
+#: .\web\views\help.py:116 .\web\views\help.py:136 .\web\views\help.py:178
+#: .\web\views\help.py:194 .\web\views\profile.py:72 .\web\views\profile.py:93
+#: .\web\views\profile.py:110 .\web\views\profile.py:127
+#: .\web\views\profile.py:142 .\web\views\profile.py:156
+#: .\web\views\report.py:210 .\web\views\report.py:250
+#: .\web\views\report.py:280 .\web\views\report.py:319
+#: .\web\views\report.py:412
+msgid "please_fix_the_errors_in_the_form"
+msgstr ""
+
+#: .\web\views\help.py:141 .\web\views\report.py:255
+msgid "you_do_not_have_permission_to_update"
+msgstr ""
+
+#: .\web\views\help.py:150
+msgid "you_cannot_edit_this_help_request"
+msgstr ""
+
+#: .\web\views\help.py:173 .\web\views\help.py:189
+msgid "help_request_updated_successfully"
+msgstr ""
+
+#: .\web\views\help.py:196
+msgid "cannot_update_help_request_in_current_status"
+msgstr ""
+
+#: .\web\views\help.py:199 .\web\views\help.py:260
+msgid "help_request_not_found"
+msgstr ""
+
+#: .\web\views\help.py:205
+msgid "you_do_not_have_permission_to_respond"
+msgstr ""
+
+#: .\web\views\help.py:218
+msgid "response_is_required"
+msgstr ""
+
+#: .\web\views\help.py:226
+msgid "response_sent_successfully"
+msgstr ""
+
+#: .\web\views\help.py:237
+msgid "you_cannot_delete_this_help_request"
+msgstr ""
+
+#: .\web\views\help.py:241
+msgid "help_request_deleted_successfully"
+msgstr ""
+
+#: .\web\views\profile.py:68
+msgid "profile_updated_successfully"
+msgstr ""
+
+#: .\web\views\profile.py:89
+msgid "education_profile_updated_successfully"
+msgstr ""
+
+#: .\web\views\profile.py:106
+msgid "certificate_added_successfully"
+msgstr ""
+
+#: .\web\views\profile.py:123
+msgid "article_added_successfully"
+msgstr ""
+
+#: .\web\views\profile.py:138
+msgid "dissertation_updated_successfully"
+msgstr ""
+
+#: .\web\views\profile.py:151
+msgid "your_password_was_successfully_updated"
+msgstr ""
+
+#: .\web\views\profile.py:165
+msgid "certificate_deleted_successfully"
+msgstr ""
+
+#: .\web\views\profile.py:167
+msgid "certificate_not_found"
+msgstr ""
+
+#: .\web\views\profile.py:176
+msgid "article_deleted_successfully"
+msgstr ""
+
+#: .\web\views\profile.py:178
+msgid "article_not_found"
+msgstr ""
+
+#: .\web\views\report.py:243 .\web\views\report.py:312
+msgid "report_saved_as_draft"
+msgstr ""
+
+#: .\web\views\report.py:245
+msgid "report_submitted_successfully"
+msgstr ""
+
+#: .\web\views\report.py:314
+msgid "report_updated_and_submitted_successfully"
+msgstr ""
+
+#: .\web\views\report.py:321
+msgid "you_can_only_update_reports_in_draft_or_submitted_status"
+msgstr ""
+
+#: .\web\views\report.py:332
+msgid "cannot_approve_report_past_due_date"
+msgstr ""
+
+#: .\web\views\report.py:343
+msgid "report_approved_successfully"
+msgstr ""
+
+#: .\web\views\report.py:355
+msgid "cannot_reject_report_past_due_date"
+msgstr ""
+
+#: .\web\views\report.py:361
+msgid "feedback_is_required_when_rejecting_a_report"
+msgstr ""
+
+#: .\web\views\report.py:362
+msgid "please_provide_feedback_when_rejecting_a_report"
+msgstr ""
+
+#: .\web\views\report.py:369
+msgid "report_rejected_successfully"
+msgstr ""
+
+#: .\web\views\report.py:384
+msgid "teacher_selection_is_required"
+msgstr ""
+
+#: .\web\views\report.py:386
+msgid "due_date_is_required"
+msgstr ""
+
+#: .\web\views\report.py:403
+msgid "report_assigned_successfully_with_due_date"
+msgstr ""
+
+#: .\web\views\report.py:406 .\web\views\report.py:407
+msgid "selected_user_is_not_a_teacher"
+msgstr ""
+
+#: .\web\views\report.py:409 .\web\views\report.py:410
+msgid "selected_teacher_does_not_exist"
+msgstr ""
+
+#: .\web\views\report.py:423
+msgid "you_dont_have_permission_to_delete_this_report"
+msgstr ""
+
+#: .\web\views\report.py:426
+msgid "report_deleted_successfully"
+msgstr ""
+
+#: .\web\views\report.py:477
+msgid "teacher_did_not_review_by_due_date_automatically_approved"
+msgstr ""
+
+#: .\web\views\user.py:53 .\web\views\user.py:82
+msgid "Student not found"
+msgstr ""
+
+#: .\web\views\user.py:199
+msgid "Student deleted successfully"
+msgstr ""
+
+#: .\web\views\user.py:201
+msgid "Error deleting student: "
+msgstr ""
+
+#: .\web\views\user.py:254
+msgid "Student updated successfully"
+msgstr ""
+
+#: .\web\views\user.py:256
+msgid "Error updating student: "
+msgstr ""
+
+#: .\web\views\user.py:274
+msgid "Password reset successfully"
+msgstr ""
+
+#: .\web\views\user.py:276
+msgid "Error resetting password: "
+msgstr ""
+
+#: .\web\views\user.py:289
+msgid "Certificate name is required"
+msgstr ""
+
+#: .\web\views\user.py:299
+msgid "Certificate added successfully"
+msgstr ""
+
+#: .\web\views\user.py:301
+msgid "Error adding certificate: "
+msgstr ""
+
+#: .\web\views\user.py:314
+msgid "Certificate deleted successfully"
+msgstr ""
+
+#: .\web\views\user.py:316
+msgid "Certificate not found"
+msgstr ""
+
+#: .\web\views\user.py:318
+msgid "Error deleting certificate: "
+msgstr ""
+
+#: .\web\views\user.py:332
+msgid "Article type is required"
+msgstr ""
+
+#: .\web\views\user.py:343
+msgid "Article added successfully"
+msgstr ""
+
+#: .\web\views\user.py:345
+msgid "Error adding article: "
+msgstr ""
+
+#: .\web\views\user.py:358
+msgid "Article deleted successfully"
+msgstr ""
+
+#: .\web\views\user.py:360
+msgid "Article not found"
+msgstr ""
+
+#: .\web\views\user.py:362
+msgid "Error deleting article: "
+msgstr ""
+
+#: .\web\views\user.py:383
+msgid "Username already exists"
+msgstr ""
+
+#: .\web\views\user.py:387
+msgid "Passwords do not match"
+msgstr ""
+
+#: .\web\views\user.py:424
+msgid "Student successfully added"
+msgstr ""
+
+#: .\web\views\user.py:428
+msgid "Error adding student: "
+msgstr ""
+
+#: .\web\views\user.py:514
+msgid "Students"
+msgstr ""
+
+#: .\web\views\user.py:603
+msgid "Certificates"
+msgstr ""
+
+#: .\web\views\user.py:628
+msgid "Articles"
+msgstr ""

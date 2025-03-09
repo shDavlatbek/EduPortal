@@ -1,6 +1,7 @@
 {% extends "layouts/main.html" %}
 {% load static %}
 {% load i18n %}
+{% load custom_tags %}
 
 {% block content %}
 <div class="container-fluid">
@@ -25,8 +26,11 @@
   <div class="row">
     <div class="col-12">
       {% for message in messages %}
-      <div class="alert alert-{{ message.tags }}" role="alert">
-        {{ message }}
+      <div class="alert alert-{{ message.tags|message_tags }}" role="alert">
+        <div class="d-flex align-items-center  me-3 me-md-0">
+          <i class="ti ti-info-circle fs-5 me-2 flex-shrink-0 text-{{ message.tags|message_tags }}"></i>
+          {{ message }}
+        </div>
       </div>
       {% endfor %}
     </div>
@@ -55,9 +59,7 @@
           <a href="?status=pending" class="btn btn-{% if filter_status == 'pending' %}primary{% else %}light{% endif %}">{% trans "pending" %}</a>
           <a href="?status=submitted" class="btn btn-{% if filter_status == 'submitted' %}primary{% else %}light{% endif %}">{% trans "submitted" %}</a>
           <a href="?status=approved" class="btn btn-{% if filter_status == 'approved' %}primary{% else %}light{% endif %}">{% trans "approved" %}</a>
-          {% if not is_student %}
           <a href="?status=rejected" class="btn btn-{% if filter_status == 'rejected' %}primary{% else %}light{% endif %}">{% trans "rejected" %}</a>
-          {% endif %}
         </div>
         
         <form method="get" class="mb-4">
@@ -70,13 +72,15 @@
                   <option value="title" {% if search_field == 'title' %}selected{% endif %}>{% trans "title" %}</option>
                   <option value="description" {% if search_field == 'description' %}selected{% endif %}>{% trans "description" %}</option>
                   <option value="type" {% if search_field == 'type' %}selected{% endif %}>{% trans "type" %}</option>
+                  {% if is_admin %}
                   <option value="student_name" {% if search_field == 'student_name' %}selected{% endif %}>{% trans "student_name" %}</option>
+                  {% endif %}
                 </select>
                 <button class="btn btn-primary" type="submit">
                   <i class="ti ti-search"></i>
                 </button>
                 {% if search_query %}
-                <a href="?{% if filter_status %}status={{ filter_status }}{% endif %}" class="btn btn-danger">
+                <a href="{% if filter_status %}?status={{ filter_status }}{% endif %}" class="btn btn-danger">
                   <i class="ti ti-x"></i>
                 </a>
                 {% endif %}
@@ -322,7 +326,14 @@
           
           <div class="mb-3">
             <label for="id_file" class="form-label">{% trans "report_file" %}</label>
-            <input type="file" class="form-control {% if form_errors.file %}is-invalid{% endif %}" id="id_file" name="file">
+            <input type="file" class="form-control {% if form_errors.file %}is-invalid{% endif %}" id="id_file" name="file" 
+              accept=".pdf,.doc,.docx,.txt,.rtf,.odt,.xls,.xlsx,.ods,.csv,.ppt,.pptx,.odp,.jpg,.jpeg,.png,.gif,.bmp,.tiff,.zip,.rar,.7z">
+            <div class="form-text">
+              <small class="text-muted">
+                {% trans "supported_formats" %}: PDF, DOCX, XLSX, PPT, TXT, JPG, PNG, {% trans "etc" %}. 
+                {% trans "max_size" %}: 100MB
+              </small>
+            </div>
             {% if form_errors.file %}
             <div class="invalid-feedback">
               {% for error in form_errors.file %}{{ error }}{% endfor %}
@@ -407,8 +418,15 @@
           
           <div class="mb-3">
             <label for="edit_file" class="form-label">{% trans "report_file" %}</label>
-            <input type="file" class="form-control {% if form_errors.file %}is-invalid{% endif %}" id="edit_file" name="file">
-            <small class="form-text text-muted">{% trans "leave_empty_to_keep_current_file" %}</small>
+            <input type="file" class="form-control {% if form_errors.file %}is-invalid{% endif %}" id="edit_file" name="file"
+              accept=".pdf,.doc,.docx,.txt,.rtf,.odt,.xls,.xlsx,.ods,.csv,.ppt,.pptx,.odp,.jpg,.jpeg,.png,.gif,.bmp,.tiff,.zip,.rar,.7z">
+            <div class="form-text">
+              <small class="text-muted">
+                {% trans "leave_empty_to_keep_current_file" %} |
+                {% trans "supported_formats" %}: PDF, DOCX, XLSX, PPT, TXT, JPG, PNG, {% trans "etc" %}. 
+                {% trans "max_size" %}: 100MB
+              </small>
+            </div>
             {% if form_errors.file %}
             <div class="invalid-feedback">
               {% for error in form_errors.file %}{{ error }}{% endfor %}
@@ -630,7 +648,7 @@
           
           <div class="mb-3">
             <label for="assign_due_date" class="form-label">{% trans "due_date" %} <span class="text-danger">*</span></label>
-            <input type="datetime-local" class="form-control {% if form_errors.due_date %}is-invalid{% endif %}" id="assign_due_date" name="due_date" required min="{{ current_date|date:'Y-m-d\TH:i' }}" value="{{ form_data.due_date|default:'' }}">
+            <input type="datetime-local" lang="en-GB" class="form-control {% if form_errors.due_date %}is-invalid{% endif %}" id="assign_due_date" name="due_date" required min="{{ current_date|date:'Y-m-d\H:i' }}" value="{{ form_data.due_date|default:'' }}">
             <small class="form-text text-muted">{% trans "teacher_must_review_by_due_date" %}</small>
             {% if form_errors.due_date %}
             <div class="invalid-feedback">
@@ -681,6 +699,112 @@
 {% block extra_js %}
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    // File validation - shared between add and edit forms
+    const validateFile = (fileInput, errorContainer) => {
+      if (!fileInput.files || fileInput.files.length === 0) return true;
+      
+      const file = fileInput.files[0];
+      const maxSize = 100 * 1024 * 1024; // 100MB in bytes
+      const allowedExtensions = [
+        // Documents
+        'pdf', 'doc', 'docx', 'txt', 'rtf', 'odt',
+        // Spreadsheets
+        'xls', 'xlsx', 'ods', 'csv',
+        // Presentations
+        'ppt', 'pptx', 'odp',
+        // Images
+        'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff',
+        // Archives
+        'zip', 'rar', '7z'
+      ];
+      
+      // Check if file is empty
+      if (file.size === 0) {
+        errorContainer.textContent = "{% trans 'uploaded_file_is_empty_upload_valid_file' %}";
+        errorContainer.style.display = 'block';
+        return false;
+      }
+      
+      // Check file size
+      if (file.size > maxSize) {
+        errorContainer.textContent = "{% trans 'file_size_exceeds_limit_upload_smaller_file' %}";
+        errorContainer.style.display = 'block';
+        return false;
+      }
+      
+      // Check file extension
+      const fileName = file.name;
+      const fileExtension = fileName.split('.').pop().toLowerCase();
+      
+      if (!allowedExtensions.includes(fileExtension)) {
+        errorContainer.textContent = "{% trans 'this_file_type_is_not_allowed_extensions' %}" + 
+          allowedExtensions.map(ext => '.' + ext).join(', ');
+        errorContainer.style.display = 'block';
+        return false;
+      }
+      
+      // Clear any previous error
+      errorContainer.textContent = "";
+      errorContainer.style.display = 'none';
+      return true;
+    };
+    
+    // Set up file validation for add form
+    const addFileInput = document.getElementById('id_file');
+    if (addFileInput) {
+      // Create error container if not exists
+      let errorContainer = document.querySelector('#id_file + .invalid-feedback');
+      if (!errorContainer) {
+        errorContainer = document.createElement('div');
+        errorContainer.className = 'invalid-feedback';
+        errorContainer.style.display = 'none';
+        addFileInput.parentNode.insertBefore(errorContainer, addFileInput.nextSibling);
+      }
+      
+      addFileInput.addEventListener('change', function() {
+        validateFile(this, errorContainer);
+      });
+      
+      // Validate form on submit
+      const addForm = addFileInput.closest('form');
+      if (addForm) {
+        addForm.addEventListener('submit', function(e) {
+          if (!validateFile(addFileInput, errorContainer)) {
+            e.preventDefault();
+            addFileInput.classList.add('is-invalid');
+          }
+        });
+      }
+    }
+    
+    // Set up file validation for edit form
+    const editFileInput = document.getElementById('edit_file');
+    if (editFileInput) {
+      // Create error container if not exists
+      let errorContainer = document.querySelector('#edit_file + .invalid-feedback');
+      if (!errorContainer) {
+        errorContainer = document.createElement('div');
+        errorContainer.className = 'invalid-feedback';
+        errorContainer.style.display = 'none';
+        editFileInput.parentNode.insertBefore(errorContainer, editFileInput.nextSibling);
+      }
+      
+      editFileInput.addEventListener('change', function() {
+        validateFile(this, errorContainer);
+      });
+      
+      // Validate form on submit
+      const editForm = editFileInput.closest('form');
+      if (editForm) {
+        editForm.addEventListener('submit', function(e) {
+          if (editFileInput.files.length > 0 && !validateFile(editFileInput, errorContainer)) {
+            e.preventDefault();
+            editFileInput.classList.add('is-invalid');
+          }
+        });
+      }
+    }
+  
     // Edit report modal
     const editButtons = document.querySelectorAll('.edit-report-btn');
     if (editButtons) {
