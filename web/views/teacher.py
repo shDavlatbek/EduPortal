@@ -26,21 +26,26 @@ def teacher(request):
     View for listing teacher users and single teacher details
     """
     # Handle form submissions
-    if request.method == 'POST' and 'form_type' in request.POST and 'teacher_id' in request.POST:
-        form_type = request.POST.get('form_type')
-        teacher_id = request.POST.get('teacher_id')
+    if request.method == 'POST':
+        if 'form_type' in request.POST and 'teacher_id' in request.POST:
+            form_type = request.POST.get('form_type')
+            teacher_id = request.POST.get('teacher_id')
+            
+            # Get the teacher
+            try:
+                teacher = User.objects.get(id=teacher_id, groups__name='teacher_group')
+                
+                if form_type == 'teacher_delete':
+                    return delete_teacher(request, teacher)
+                elif form_type == 'password_reset':
+                    return reset_password(request, teacher)
+                
+            except User.DoesNotExist:
+                messages.error(request, _("teacher_not_found"))
         
-        # Get the teacher
-        try:
-            teacher = User.objects.get(id=teacher_id, groups__name='teacher_group')
-            
-            if form_type == 'teacher_delete':
-                return delete_teacher(request, teacher)
-            elif form_type == 'password_reset':
-                return reset_password(request, teacher)
-            
-        except User.DoesNotExist:
-            messages.error(request, _("teacher_not_found"))
+        # If it's a form submission for updating
+        elif 'action' in request.POST and request.POST.get('action') == 'update':
+            return update_teacher(request)
     
     # Check if it's a detail view or list view
     teacher_id = request.GET.get('teacher_id')
@@ -127,7 +132,12 @@ def update_teacher(request):
     teacher_id = request.POST.get('teacher_id')
     
     try:
-        teacher = User.objects.get(id=teacher_id, groups__name='teacher_group')
+        # Try to get the teacher by ID first
+        try:
+            teacher = User.objects.get(id=teacher_id, groups__name='teacher_group')
+        except (User.DoesNotExist, ValueError):
+            # If ID doesn't work, try username
+            teacher = User.objects.get(username=teacher_id, groups__name='teacher_group')
         
         # Update profile information
         if not hasattr(teacher, 'profile'):
@@ -158,7 +168,8 @@ def update_teacher(request):
     except Exception as e:
         messages.error(request, _("error_updating_teacher").format(error=str(e)))
     
-    return redirect('teacher')
+    # Redirect to the detailed view of the updated teacher
+    return redirect(f"{reverse('teacher')}?teacher_id={teacher.username}")
 
 def reset_password(request, teacher):
     """Reset teacher's password"""

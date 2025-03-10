@@ -26,32 +26,34 @@ def user(request):
     View for listing student users and single student details
     """
     # Handle form submissions
-    if request.method == 'POST' and 'form_type' in request.POST and 'student_id' in request.POST:
-        form_type = request.POST.get('form_type')
-        student_id = request.POST.get('student_id')
-        
-        # Get the student
-        try:
-            student = User.objects.get(id=student_id, groups__name='student_group')
+    if request.method == 'POST':
+        if 'form_type' in request.POST and 'student_id' in request.POST:
+            form_type = request.POST.get('form_type')
+            student_id = request.POST.get('student_id')
             
-            # Handle different form types
-            if form_type == 'update':
-                return update_student(request)
-            elif form_type == 'password_reset':
-                return reset_password(request, student)
-            elif form_type == 'certificate_add':
-                return add_certificate(request, student)
-            elif form_type == 'certificate_delete':
-                return delete_certificate(request, student)
-            elif form_type == 'article_add':
-                return add_article(request, student)
-            elif form_type == 'article_delete':
-                return delete_article(request, student)
-            elif form_type == 'student_delete':
-                return delete_student(request, student)
-        except User.DoesNotExist:
-            messages.error(request, _('Student not found'))
-            return redirect('user')
+            # Get the student
+            try:
+                student = User.objects.get(id=student_id, groups__name='student_group')
+                
+                # Handle different form types
+                if form_type == 'password_reset':
+                    return reset_password(request, student)
+                elif form_type == 'certificate_add':
+                    return add_certificate(request, student)
+                elif form_type == 'certificate_delete':
+                    return delete_certificate(request, student)
+                elif form_type == 'article_add':
+                    return add_article(request, student)
+                elif form_type == 'article_delete':
+                    return delete_article(request, student)
+                elif form_type == 'student_delete':
+                    return delete_student(request, student)
+            except User.DoesNotExist:
+                messages.error(request, _('Student not found'))
+                return redirect('user')
+        # Handle action="update" from the student edit form
+        elif 'action' in request.POST and request.POST.get('action') == 'update':
+            return update_student(request)
     
     # Check if we're viewing a single student
     student_id = request.GET.get('student_id')
@@ -207,10 +209,16 @@ def update_student(request):
     Update student profile and education info
     """
     student_id = request.POST.get('student_id')
-    student = get_object_or_404(User, username=student_id)
     
-    # Update profile
     try:
+        # Try to get the student by ID first
+        try:
+            student = User.objects.get(id=student_id, groups__name='student_group')
+        except (User.DoesNotExist, ValueError):
+            # If ID doesn't work, try username
+            student = User.objects.get(username=student_id, groups__name='student_group')
+        
+        # Update profile
         profile = student.profile
         profile.full_name = request.POST.get('full_name')
         profile.birth_date = request.POST.get('birth_date') or None
