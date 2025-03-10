@@ -20,3 +20,4 @@ sqlparse==0.5.3
 transliterate==1.10.2
 tzdata==2025.1
 uritemplate==4.1.1
+XlsxWriter==3.2.2
