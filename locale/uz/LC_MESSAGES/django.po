@@ -29,7 +29,7 @@ msgstr "Rus tili"
 #: .\templates\auth\login.html:12 .\templates\layouts\main.html:18
 #: .\templates\layouts\main.html:27
 msgid "brand_name"
-msgstr "EduPortal"
+msgstr "Doktorant Bo'limi"
 
 #: .\templates\auth\login.html:18 .\templates\teacher\index.html:314
 #: .\templates\user\index.html:399 .\web\views\teacher.py:286
@@ -1576,14 +1576,14 @@ msgstr "Sertifikatlar"
 msgid "Articles"
 msgstr "Maqolalar"
 
-#~ msgid "student_group"
-#~ msgstr "Doktarant"
+msgid "student_group"
+msgstr "Doktarant"
 
-#~ msgid "admin_group"
-#~ msgstr "Admin"
+msgid "admin_group"
+msgstr "Admin"
 
-#~ msgid "teacher_group"
-#~ msgstr "Professor"
+msgid "teacher_group"
+msgstr "Professor"
 
-#~ msgid "superadmin_group"
-#~ msgstr "Superadmin"
+msgid "superadmin_group"
+msgstr "Superadmin"

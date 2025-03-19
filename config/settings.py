@@ -24,11 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-tdt##wrfc**%si0inx&!y1j5bj2vy8)il*1+213g9i*d=3_ie7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+CSRF_TRUSTED_ORIGINS = ['http://1.com.uz', 'https://1.com.uz']
 
 # Application definition
 
@@ -139,7 +140,7 @@ USE_I18N = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'assets/'
+STATIC_URL = 'static/'
 STATIC_ROOT = 'static/'
 
 STATICFILES_DIRS = [
