@@ -431,7 +431,7 @@ def user_add(request):
             
             messages.success(request, _('Student successfully added'))
             # Redirect to the newly created student's page
-            return redirect(f'user?student_id={user.username}')
+            return redirect(f"{reverse('user')}?student_id={username}")
         except Exception as e:
             messages.error(request, _('Error adding student: ') + str(e))
         
